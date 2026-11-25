@@ -1749,7 +1749,7 @@ int Position::see(Square from, Square to) const
     // Having built the swap list, we negamax through it to find the best
     // achievable score from the point of view of the side to move:
     while (--n)
-        swapList[n - 1] = Min(-swapList[n], swapList[n - 1]);
+        swapList[n - 1] = std::min(-swapList[n], swapList[n - 1]);
 
     return swapList[0];
 }
@@ -2002,7 +2002,7 @@ bool Position::is_draw() const
         return true;
 
     // Draw by repetition?
-    for (int i = 2; i < Min(gamePly, rule50); i += 2)
+    for (int i = 2; i < std::min(gamePly, rule50); i += 2)
         if (history[gamePly - i] == key)
             return true;
 

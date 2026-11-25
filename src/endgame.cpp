@@ -669,7 +669,7 @@ ScaleFactor KRPPKRPScalingFunction::apply(const Position &pos)
     if (pos.pawn_is_passed(strongerSide, wpsq1) || pos.pawn_is_passed(strongerSide, wpsq2))
         return SCALE_FACTOR_NONE;
 
-    Rank r = Max(pawn_rank(strongerSide, wpsq1), pawn_rank(strongerSide, wpsq2));
+    Rank r = std::max(pawn_rank(strongerSide, wpsq1), pawn_rank(strongerSide, wpsq2));
 
     if (file_distance(bksq, wpsq1) <= 1 && file_distance(bksq, wpsq2) <= 1
         && pawn_rank(strongerSide, bksq) > r) {

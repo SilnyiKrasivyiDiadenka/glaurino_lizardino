@@ -645,10 +645,10 @@ Move generate_move_if_legal(const Position &pos, Move m, Bitboard pinned)
         Square s;
         bool illegal = false;
 
-        for (s = Min(from, g1); s <= Max(from, g1); s++)
+        for (s = std::min(from, g1); s <= std::max(from, g1); s++)
             if ((s != from && s != to && !pos.square_is_empty(s)) || pos.square_is_attacked(s, them))
                 illegal = true;
-        for (s = Min(to, f1); s <= Max(to, f1); s++)
+        for (s = std::min(to, f1); s <= std::max(to, f1); s++)
             if (s != from && s != to && !pos.square_is_empty(s))
                 illegal = true;
 
@@ -674,10 +674,10 @@ Move generate_move_if_legal(const Position &pos, Move m, Bitboard pinned)
         Square s;
         bool illegal = false;
 
-        for (s = Min(from, c1); s <= Max(from, c1); s++)
+        for (s = std::min(from, c1); s <= std::max(from, c1); s++)
             if ((s != from && s != to && !pos.square_is_empty(s)) || pos.square_is_attacked(s, them))
                 illegal = true;
-        for (s = Min(to, d1); s <= Max(to, d1); s++)
+        for (s = std::min(to, d1); s <= std::max(to, d1); s++)
             if (s != from && s != to && !pos.square_is_empty(s))
                 illegal = true;
         if (square_file(to) == FILE_B
@@ -1155,11 +1155,11 @@ int generate_castle_moves(const Position &pos, MoveStack *mlist, Color us)
 
             assert(pos.piece_on(rsq) == rook_of_color(us));
 
-            for (s = Min(ksq, g1); s <= Max(ksq, g1); s++)
+            for (s = std::min(ksq, g1); s <= std::max(ksq, g1); s++)
                 if ((s != ksq && s != rsq && pos.square_is_occupied(s))
                     || pos.square_is_attacked(s, them))
                     illegal = true;
-            for (s = Min(rsq, f1); s <= Max(rsq, f1); s++)
+            for (s = std::min(rsq, f1); s <= std::max(rsq, f1); s++)
                 if (s != ksq && s != rsq && pos.square_is_occupied(s))
                     illegal = true;
 
@@ -1176,11 +1176,11 @@ int generate_castle_moves(const Position &pos, MoveStack *mlist, Color us)
 
             assert(pos.piece_on(rsq) == rook_of_color(us));
 
-            for (s = Min(ksq, c1); s <= Max(ksq, c1); s++)
+            for (s = std::min(ksq, c1); s <= std::max(ksq, c1); s++)
                 if ((s != ksq && s != rsq && pos.square_is_occupied(s))
                     || pos.square_is_attacked(s, them))
                     illegal = true;
-            for (s = Min(rsq, d1); s <= Max(rsq, d1); s++)
+            for (s = std::min(rsq, d1); s <= std::max(rsq, d1); s++)
                 if (s != ksq && s != rsq && pos.square_is_occupied(s))
                     illegal = true;
             if (square_file(rsq) == FILE_B

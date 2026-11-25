@@ -416,7 +416,7 @@ void think(const Position &pos,
     if (!movesToGo) { // Sudden death time control
         if (increment) {
             MaxSearchTime = time / 30 + increment;
-            AbsoluteMaxSearchTime = Max(time / 4, increment - 100);
+            AbsoluteMaxSearchTime = std::max(time / 4, increment - 100);
         } else { // Blitz game without increment
             MaxSearchTime = time / 40;
             AbsoluteMaxSearchTime = time / 8;
@@ -424,15 +424,15 @@ void think(const Position &pos,
     } else { // (x moves) / (y minutes)
         if (movesToGo == 1) {
             MaxSearchTime = time / 2;
-            AbsoluteMaxSearchTime = Min(time / 2, time - 500);
+            AbsoluteMaxSearchTime = std::min(time / 2, time - 500);
         } else {
-            MaxSearchTime = time / Min(movesToGo, 20);
-            AbsoluteMaxSearchTime = Min((4 * time) / movesToGo, time / 3);
+            MaxSearchTime = time / std::min(movesToGo, 20);
+            AbsoluteMaxSearchTime = std::min((4 * time) / movesToGo, time / 3);
         }
     }
     if (PonderingEnabled) {
         MaxSearchTime += MaxSearchTime / 4;
-        MaxSearchTime = Min(MaxSearchTime, AbsoluteMaxSearchTime);
+        MaxSearchTime = std::min(MaxSearchTime, AbsoluteMaxSearchTime);
     }
 
     // Fixed depth or fixed number of nodes?
@@ -442,7 +442,7 @@ void think(const Position &pos,
 
     MaxNodes = maxNodes;
     if (MaxNodes) {
-        NodesBetweenPolls = Min(MaxNodes, 30000);
+        NodesBetweenPolls = std::min(MaxNodes, 30000);
         InfiniteSearch = true; // HACK
     } else
         NodesBetweenPolls = 30000;
@@ -785,7 +785,7 @@ Value root_search(Position &pos, SearchStack ss[], RootMoveList &rml)
                     Problem = false;
             } else { // MultiPV > 1
                 rml.sort_multipv(i);
-                for (int j = 0; j < Min(MultiPV, rml.move_count()); j++) {
+                for (int j = 0; j < std::min(MultiPV, rml.move_count()); j++) {
                     int k;
                     std::cout << "info multipv " << j + 1 << " score "
                               << value_to_string(rml.get_move_score(j)) << " depth "
@@ -796,7 +796,7 @@ Value root_search(Position &pos, SearchStack ss[], RootMoveList &rml)
                         std::cout << rml.get_move_pv(j, k) << " ";
                     std::cout << std::endl;
                 }
-                alpha = rml.get_move_score(Min(i, MultiPV - 1));
+                alpha = rml.get_move_score(std::min(i, MultiPV - 1));
             }
         }
     }
@@ -834,8 +834,8 @@ Value search_pv(
         return evaluate(pos, ei, threadID);
 
     // Mate distance pruning
-    alpha = Max(value_mated_in(ply), alpha);
-    beta = Min(value_mate_in(ply + 1), beta);
+    alpha = std::max(value_mated_in(ply), alpha);
+    beta = std::min(value_mate_in(ply + 1), beta);
     if (alpha >= beta)
         return alpha;
 
@@ -1041,8 +1041,8 @@ Value search(Position &pos,
     ttFound = TT.retrieve(pos, &ttValue, &ttDepth, &ttMove, &ttValueType);
     if (ttFound) {
         ttValue = value_from_tt(ttValue, ply);
-        if (ttDepth >= depth || ttValue >= Max(value_mate_in(100), beta)
-            || ttValue < Min(value_mated_in(100), beta)) {
+        if (ttDepth >= depth || ttValue >= std::max(value_mate_in(100), beta)
+            || ttValue < std::min(value_mated_in(100), beta)) {
             if ((is_lower_bound(ttValueType) && ttValue >= beta)
                 || (is_upper_bound(ttValueType) && ttValue < beta)) {
                 ss[ply].currentMove = ttMove;
@@ -1098,7 +1098,7 @@ Value search(Position &pos,
     // Internal iterative deepening
     if (UseIIDAtNonPVNodes && ttMove == MOVE_NONE && depth >= 8 * OnePly
         && evaluate(pos, ei, threadID) >= beta - IIDMargin) {
-        search(pos, ss, beta, Min(depth / 2, depth - 2 * OnePly), ply, false, threadID);
+        search(pos, ss, beta, std::min(depth / 2, depth - 2 * OnePly), ply, false, threadID);
         ttMove = ss[ply].pv[ply];
     }
 
@@ -1308,8 +1308,8 @@ Value qsearch(
             && !moveIsPassedPawnPush && beta - alpha == 1
             && pos.non_pawn_material(pos.side_to_move()) > RookValueMidgame) {
             Value futilityValue = staticValue
-                                  + Max(pos.midgame_value_of_piece_on(move_to(move)),
-                                        pos.endgame_value_of_piece_on(move_to(move)))
+                                  + std::max(pos.midgame_value_of_piece_on(move_to(move)),
+                                             pos.endgame_value_of_piece_on(move_to(move)))
                                   + FutilityMargin0 + ei.futilityMargin;
             if (futilityValue < alpha) {
                 if (futilityValue > bestValue)
@@ -1899,7 +1899,7 @@ Depth extension(
         && pos.see(m) >= 0)
         result += OnePly / 2;
 
-    return Min(result, OnePly);
+    return std::min(result, OnePly);
 }
 
 // ok_to_do_nullmove() looks at the current position and decides whether

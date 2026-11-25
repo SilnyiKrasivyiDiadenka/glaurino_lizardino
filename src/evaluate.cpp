@@ -807,7 +807,7 @@ void evaluate_king(const Position &p, Square s, Color us, EvalInfo &ei)
         // number and types of the attacking pieces, the number of attacked and
         // undefended squares around the king, the square of the king, and the
         // quality of the pawn shelter.
-        int attackUnits = Min((ei.attackCount[them] * ei.attackWeight[them]) / 2, 25)
+        int attackUnits = std::min((ei.attackCount[them] * ei.attackWeight[them]) / 2, 25)
                           + (ei.attacked[them] + count_1s_max_15(undefended)) * 3
                           + InitKingDanger[relative_square(us, s)] - (shelter >> 5);
 
@@ -936,7 +936,7 @@ void evaluate_passed_pawns(const Position &pos, EvalInfo &ei)
             assert(pos.pawn_is_passed(us, s));
 
             int r = int(pawn_rank(us, s) - RANK_2);
-            int tr = Max(0, r * (r - 1));
+            int tr = std::max(0, r * (r - 1));
             Square blockSq = s + pawn_push(us);
 
             // Base bonus based on rank:
@@ -1011,7 +1011,7 @@ void evaluate_passed_pawns(const Position &pos, EvalInfo &ei)
                     d += blockerCount;
                     if (d < 0) {
                         hasUnstoppable[us] = true;
-                        movesToGo[us] = Min(movesToGo[us], mtg);
+                        movesToGo[us] = std::min(movesToGo[us], mtg);
                     }
                 }
             }

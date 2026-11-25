@@ -302,7 +302,7 @@ inline int rank_distance(Square s1, Square s2)
 
 inline int square_distance(Square s1, Square s2)
 {
-    return Max(file_distance(s1, s2), rank_distance(s1, s2));
+    return std::max(file_distance(s1, s2), rank_distance(s1, s2));
 }
 
 ////

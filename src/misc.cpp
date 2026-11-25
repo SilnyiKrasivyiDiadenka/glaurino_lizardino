@@ -90,7 +90,7 @@ int get_system_time()
 #if defined(_SC_NPROCESSORS_ONLN)
 int cpu_count()
 {
-    return Min(sysconf(_SC_NPROCESSORS_ONLN), 8);
+    return std::min(sysconf(_SC_NPROCESSORS_ONLN), 8L);
 }
 #else
 int cpu_count()

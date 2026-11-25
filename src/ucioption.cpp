@@ -150,8 +150,8 @@ void init_uci_options()
     // According to Ken Dail's tests, Glaurung plays much better with 7 than
     // with 8 threads.  This is weird, but it is probably difficult to find out
     // why before I have a 8-core computer to experiment with myself.
-    sprintf(o->defaultValue, "%d", Min(cpu_count(), 7));
-    sprintf(o->currentValue, "%d", Min(cpu_count(), 7));
+    sprintf(o->defaultValue, "%d", std::min(cpu_count(), 7));
+    sprintf(o->currentValue, "%d", std::min(cpu_count(), 7));
 
     // Increase the minimum split depth when the number of CPUs is big.
     // It would probably be better to let this depend on the number of threads
