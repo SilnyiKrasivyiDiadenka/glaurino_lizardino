@@ -64,7 +64,6 @@ add_executable(
   src/square.h
   src/square.cpp
   src/thread.h
-  src/timeoday.cpp
   src/tt.h
   src/tt.cpp
   src/types.h

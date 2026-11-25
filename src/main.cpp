@@ -23,6 +23,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <cstdio>
 
 #include "benchmark.h"
 #include "bitboard.h"
