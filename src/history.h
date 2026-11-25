@@ -16,7 +16,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(HISTORY_H_INCLUDED)
 #define HISTORY_H_INCLUDED
 
@@ -28,7 +27,6 @@
 #include "move.h"
 #include "piece.h"
 
-
 ////
 //// Types
 ////
@@ -37,22 +35,21 @@
 /// been successful or unsuccessful during the current search.  These
 /// statistics are used for reduction and move ordering decisions.
 
-class History {
-
+class History
+{
 public:
-  History();
-  void clear();
-  void success(Piece p, Move m, Depth d);
-  void failure(Piece p, Move m);
-  int move_ordering_score(Piece p, Move m) const;
-  bool ok_to_prune(Piece p, Move m, Depth d) const;
+    History();
+    void clear();
+    void success(Piece p, Move m, Depth d);
+    void failure(Piece p, Move m);
+    int move_ordering_score(Piece p, Move m) const;
+    bool ok_to_prune(Piece p, Move m, Depth d) const;
 
 private:
-  int history[16][64];  // [piece][square]
-  int successCount[16][64];
-  int failureCount[16][64];
+    int history[16][64]; // [piece][square]
+    int successCount[16][64];
+    int failureCount[16][64];
 };
-
 
 ////
 //// Constants and variables
@@ -71,6 +68,5 @@ private:
 /// would be better to scale down the history table at regular intervals?
 
 const int HistoryMax = 50000;
-
 
 #endif // !defined(HISTORY_H_INCLUDED)

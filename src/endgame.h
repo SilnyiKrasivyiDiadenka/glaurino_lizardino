@@ -16,7 +16,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(ENDGAME_H_INCLUDED)
 #define ENDGAME_H_INCLUDED
 
@@ -28,170 +27,185 @@
 #include "scale.h"
 #include "value.h"
 
-
 ////
 //// Types
 ////
 
 /// Abstract base class for all special endgame evaluation functions:
 
-class EndgameEvaluationFunction {
+class EndgameEvaluationFunction
+{
 public:
-  EndgameEvaluationFunction(Color c);
-  virtual ~EndgameEvaluationFunction() { }
+    EndgameEvaluationFunction(Color c);
+    virtual ~EndgameEvaluationFunction() {}
 
-  virtual Value apply(const Position &pos) =0;
+    virtual Value apply(const Position &pos) = 0;
 
 protected:
-  Color strongerSide, weakerSide;
+    Color strongerSide, weakerSide;
 };
-
 
 /// Subclasses for various concrete endgames:
 
 // Generic "mate lone king" eval:
-class KXKEvaluationFunction : public EndgameEvaluationFunction {
+class KXKEvaluationFunction : public EndgameEvaluationFunction
+{
 public:
-  KXKEvaluationFunction(Color c);
-  Value apply(const Position &pos);
+    KXKEvaluationFunction(Color c);
+    Value apply(const Position &pos);
 };
 
 // KBN vs K:
-class KBNKEvaluationFunction : public EndgameEvaluationFunction {
+class KBNKEvaluationFunction : public EndgameEvaluationFunction
+{
 public:
-  KBNKEvaluationFunction(Color c);
-  Value apply(const Position &pos);
+    KBNKEvaluationFunction(Color c);
+    Value apply(const Position &pos);
 };
 
 // KP vs K:
-class KPKEvaluationFunction : public EndgameEvaluationFunction {
+class KPKEvaluationFunction : public EndgameEvaluationFunction
+{
 public:
-  KPKEvaluationFunction(Color c);
-  Value apply(const Position &pos);
+    KPKEvaluationFunction(Color c);
+    Value apply(const Position &pos);
 };
 
 // KR vs KP:
-class KRKPEvaluationFunction : public EndgameEvaluationFunction {
+class KRKPEvaluationFunction : public EndgameEvaluationFunction
+{
 public:
-  KRKPEvaluationFunction(Color c);
-  Value apply(const Position &pos);
+    KRKPEvaluationFunction(Color c);
+    Value apply(const Position &pos);
 };
 
 // KR vs KB:
-class KRKBEvaluationFunction : public EndgameEvaluationFunction {
+class KRKBEvaluationFunction : public EndgameEvaluationFunction
+{
 public:
-  KRKBEvaluationFunction(Color c);
-  Value apply(const Position &pos);
+    KRKBEvaluationFunction(Color c);
+    Value apply(const Position &pos);
 };
 
 // KR vs KN:
-class KRKNEvaluationFunction : public EndgameEvaluationFunction {
+class KRKNEvaluationFunction : public EndgameEvaluationFunction
+{
 public:
-  KRKNEvaluationFunction(Color c);
-  Value apply(const Position &pos);
+    KRKNEvaluationFunction(Color c);
+    Value apply(const Position &pos);
 };
 
 // KQ vs KR:
-class KQKREvaluationFunction : public EndgameEvaluationFunction {
+class KQKREvaluationFunction : public EndgameEvaluationFunction
+{
 public:
-  KQKREvaluationFunction(Color c);
-  Value apply(const Position &pos);
+    KQKREvaluationFunction(Color c);
+    Value apply(const Position &pos);
 };
 
 // KBB vs KN:
-class KBBKNEvaluationFunction : public EndgameEvaluationFunction {
+class KBBKNEvaluationFunction : public EndgameEvaluationFunction
+{
 public:
-  KBBKNEvaluationFunction(Color C);
-  Value apply(const Position &pos);
+    KBBKNEvaluationFunction(Color C);
+    Value apply(const Position &pos);
 };
 
 // K and two minors vs K and one or two minors:
-class KmmKmEvaluationFunction : public EndgameEvaluationFunction {
+class KmmKmEvaluationFunction : public EndgameEvaluationFunction
+{
 public:
-  KmmKmEvaluationFunction(Color c);
-  Value apply(const Position &pos);
+    KmmKmEvaluationFunction(Color c);
+    Value apply(const Position &pos);
 };
-
 
 /// Abstract base class for all evaluation scaling functions:
 
-class ScalingFunction {
+class ScalingFunction
+{
 public:
-  ScalingFunction(Color c);
-  virtual ~ScalingFunction() { }
+    ScalingFunction(Color c);
+    virtual ~ScalingFunction() {}
 
-  virtual ScaleFactor apply(const Position &pos) =0;
+    virtual ScaleFactor apply(const Position &pos) = 0;
 
 protected:
-  Color strongerSide, weakerSide;
+    Color strongerSide, weakerSide;
 };
-
 
 /// Subclasses for various concrete endgames:
 
 // KBP vs K:
-class KBPKScalingFunction : public ScalingFunction {
+class KBPKScalingFunction : public ScalingFunction
+{
 public:
-  KBPKScalingFunction(Color c);
-  ScaleFactor apply(const Position &pos);
+    KBPKScalingFunction(Color c);
+    ScaleFactor apply(const Position &pos);
 };
 
 // KQ vs KRP:
-class KQKRPScalingFunction: public ScalingFunction {
+class KQKRPScalingFunction : public ScalingFunction
+{
 public:
-  KQKRPScalingFunction(Color c);
-  ScaleFactor apply(const Position &pos);
+    KQKRPScalingFunction(Color c);
+    ScaleFactor apply(const Position &pos);
 };
 
 // KRP vs KR:
-class KRPKRScalingFunction : public ScalingFunction {
+class KRPKRScalingFunction : public ScalingFunction
+{
 public:
-  KRPKRScalingFunction(Color c);
-  ScaleFactor apply(const Position &pos);
+    KRPKRScalingFunction(Color c);
+    ScaleFactor apply(const Position &pos);
 };
 
 // KRPP vs KRP:
-class KRPPKRPScalingFunction : public ScalingFunction {
+class KRPPKRPScalingFunction : public ScalingFunction
+{
 public:
-  KRPPKRPScalingFunction(Color c);
-  ScaleFactor apply(const Position &pos);
+    KRPPKRPScalingFunction(Color c);
+    ScaleFactor apply(const Position &pos);
 };
 
 // King and pawns vs king:
-class KPsKScalingFunction : public ScalingFunction {
+class KPsKScalingFunction : public ScalingFunction
+{
 public:
-  KPsKScalingFunction(Color c);
-  ScaleFactor apply(const Position &pos);
+    KPsKScalingFunction(Color c);
+    ScaleFactor apply(const Position &pos);
 };
 
 // KBP vs KB:
-class KBPKBScalingFunction : public ScalingFunction {
+class KBPKBScalingFunction : public ScalingFunction
+{
 public:
-  KBPKBScalingFunction(Color c);
-  ScaleFactor apply(const Position &pos);
+    KBPKBScalingFunction(Color c);
+    ScaleFactor apply(const Position &pos);
 };
 
 // KBP vs KN:
-class KBPKNScalingFunction : public ScalingFunction {
+class KBPKNScalingFunction : public ScalingFunction
+{
 public:
-  KBPKNScalingFunction(Color c);
-  ScaleFactor apply(const Position &pos);
+    KBPKNScalingFunction(Color c);
+    ScaleFactor apply(const Position &pos);
 };
 
 // KNP vs K:
-class KNPKScalingFunction : public ScalingFunction {
+class KNPKScalingFunction : public ScalingFunction
+{
 public:
-  KNPKScalingFunction(Color c);
-  ScaleFactor apply(const Position &pos);
+    KNPKScalingFunction(Color c);
+    ScaleFactor apply(const Position &pos);
 };
 
 // KP vs KP:
-class KPKPScalingFunction : public ScalingFunction {
+class KPKPScalingFunction : public ScalingFunction
+{
 public:
-  KPKPScalingFunction(Color c);
-  ScaleFactor apply(const Position &pos);
+    KPKPScalingFunction(Color c);
+    ScaleFactor apply(const Position &pos);
 };
-
 
 ////
 //// Constants and variables
@@ -224,7 +238,6 @@ extern KBBKNEvaluationFunction EvaluateKBBKN, EvaluateKNKBB;
 // K and two minors vs K and one or two minors:
 extern KmmKmEvaluationFunction EvaluateKmmKm;
 
-
 // KBP vs K:
 extern KBPKScalingFunction ScaleKBPK, ScaleKKBP;
 
@@ -252,12 +265,10 @@ extern KNPKScalingFunction ScaleKNPK, ScaleKKNP;
 // KP vs KP:
 extern KPKPScalingFunction ScaleKPKPw, ScaleKPKPb;
 
-
 ////
 //// Prototypes
 ////
 
 extern void init_bitbases();
-
 
 #endif // !defined(ENDGAME_H_INCLUDED)

@@ -16,7 +16,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(BITBASE_H_INCLUDED)
 #define BITBASE_H_INCLUDED
 
@@ -26,12 +25,10 @@
 
 #include "types.h"
 
-
 ////
 //// Prototypes
 ////
 
 extern void generate_kpk_bitbase(uint8_t bitbase[]);
-
 
 #endif // !defined(BITBASE_H_INCLUDED)

@@ -16,7 +16,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(SEARCH_H_INCLUDED)
 #define SEARCH_H_INCLUDED
 
@@ -32,14 +31,12 @@
 #include "tt.h"
 #include "value.h"
 
-
 ////
 //// Constants
 ////
 
 const int PLY_MAX = 100;
 const int PLY_MAX_PLUS_2 = 102;
-
 
 ////
 //// Types
@@ -50,15 +47,15 @@ const int PLY_MAX_PLUS_2 = 102;
 /// search thread has its own array of SearchStack objects, indexed by the
 /// current ply.
 
-struct SearchStack {
-  Move pv[PLY_MAX];
-  Move currentMove;
-  Value currentMoveCaptureValue;
-  Move mateKiller, killer1, killer2;
-  Move threatMove;
-  Depth reduction;
+struct SearchStack
+{
+    Move pv[PLY_MAX];
+    Move currentMove;
+    Value currentMoveCaptureValue;
+    Move mateKiller, killer1, killer2;
+    Move threatMove;
+    Depth reduction;
 };
-
 
 ////
 //// Global variables
@@ -71,8 +68,7 @@ extern int ActiveThreads;
 extern Lock SMPLock;
 
 // Perhaps better to make H local, and pass as parameter to MovePicker?
-extern History H;  
-
+extern History H;
 
 ////
 //// Prototypes
@@ -80,10 +76,16 @@ extern History H;
 
 extern void init_threads();
 extern void stop_threads();
-extern void think(const Position &pos, bool infinite, bool ponder, int time,
-                  int increment, int movesToGo, int maxDepth, int maxNodes,
-                  int maxTime, Move searchMoves[]);
+extern void think(const Position &pos,
+                  bool infinite,
+                  bool ponder,
+                  int time,
+                  int increment,
+                  int movesToGo,
+                  int maxDepth,
+                  int maxNodes,
+                  int maxTime,
+                  Move searchMoves[]);
 extern int64_t nodes_searched();
-
 
 #endif // !defined(SEARCH_H_INCLUDED)

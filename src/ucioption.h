@@ -16,7 +16,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(UCIOPTION_H_INCLUDED)
 #define UCIOPTION_H_INCLUDED
 
@@ -26,13 +25,11 @@
 
 #include <string>
 
-
 ////
 //// Variables
 ////
 
 extern bool Chess960;
-
 
 ////
 //// Prototypes
@@ -44,9 +41,7 @@ extern bool get_option_value_bool(const std::string &optionName);
 extern int get_option_value_int(const std::string &optionName);
 extern const std::string get_option_value_string(const std::string &optionName);
 extern bool button_was_pressed(const std::string &buttonName);
-extern void set_option_value(const std::string &optionName, 
-                             const std::string &newValue);
+extern void set_option_value(const std::string &optionName, const std::string &newValue);
 extern void push_button(const std::string &buttonName);
-
 
 #endif // !defined(UCIOPTION_H_INCLUDED)

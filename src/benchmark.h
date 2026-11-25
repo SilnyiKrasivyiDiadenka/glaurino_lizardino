@@ -16,7 +16,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(BENCHMARK_H_INCLUDED)
 #define BENCHMARK_H_INCLUDED
 
@@ -26,12 +25,10 @@
 
 #include <string>
 
-
 ////
 //// Prototypes
 ////
 
 extern void benchmark(const std::string &ttSize, const std::string &threads);
-
 
 #endif // !defined(BENCHMARK_H_INCLUDED)

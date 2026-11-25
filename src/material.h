@@ -16,7 +16,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(MATERIAL_H_INCLUDED)
 #define MATERIAL_H_INCLUDED
 
@@ -27,7 +26,6 @@
 #include "endgame.h"
 #include "position.h"
 #include "scale.h"
-
 
 ////
 //// Types
@@ -43,51 +41,49 @@
 /// For instance, in KRB vs KR endgames, the score is scaled down by a factor
 /// of 4, which will result in scores of absolute value less than one pawn.
 
-class MaterialInfo {
-
-  friend class MaterialInfoTable;
+class MaterialInfo
+{
+    friend class MaterialInfoTable;
 
 public:
-  Value mg_value() const;
-  Value eg_value() const;
-  ScaleFactor scale_factor(const Position &pos, Color c) const;
-  int space_weight() const;
-  bool specialized_eval_exists() const;
-  Value evaluate(const Position &pos) const;
+    Value mg_value() const;
+    Value eg_value() const;
+    ScaleFactor scale_factor(const Position &pos, Color c) const;
+    int space_weight() const;
+    bool specialized_eval_exists() const;
+    Value evaluate(const Position &pos) const;
 
-  static void init();
+    static void init();
 
 private:
-  void clear();
-  
-  Key key;
-  int16_t mgValue;
-  int16_t egValue;
-  uint8_t spaceWeight;
-  uint8_t factor[2];
-  EndgameEvaluationFunction *evaluationFunction;
-  ScalingFunction *scalingFunction[2];
-};
+    void clear();
 
+    Key key;
+    int16_t mgValue;
+    int16_t egValue;
+    uint8_t spaceWeight;
+    uint8_t factor[2];
+    EndgameEvaluationFunction *evaluationFunction;
+    ScalingFunction *scalingFunction[2];
+};
 
 /// The MaterialInfoTable class represents a pawn hash table.  It is basically
 /// just an array of MaterialInfo objects and a few methods for accessing these
 /// objects.  The most important method is get_material_info, which looks up a
 /// position in the table and returns a pointer to a MaterialInfo object.
 
-class MaterialInfoTable {
-
+class MaterialInfoTable
+{
 public:
-  MaterialInfoTable(unsigned numOfEntries);
-  ~MaterialInfoTable();
-  void clear();
-  MaterialInfo *get_material_info(const Position &pos);
+    MaterialInfoTable(unsigned numOfEntries);
+    ~MaterialInfoTable();
+    void clear();
+    MaterialInfo *get_material_info(const Position &pos);
 
 private:
-  unsigned size;
-  MaterialInfo *entries;
+    unsigned size;
+    MaterialInfo *entries;
 };
-
 
 ////
 //// Inline functions
@@ -96,26 +92,27 @@ private:
 /// MaterialInfo::mg_value and MaterialInfo::eg_value simply returns the
 /// material balance evaluation for the middle game and the endgame.
 
-inline Value MaterialInfo::mg_value() const {
-  return Value(mgValue);
+inline Value MaterialInfo::mg_value() const
+{
+    return Value(mgValue);
 }
 
-inline Value MaterialInfo::eg_value() const {
-  return Value(egValue);
+inline Value MaterialInfo::eg_value() const
+{
+    return Value(egValue);
 }
-
 
 /// MaterialInfo::clear() resets a MaterialInfo object to an empty state,
 /// with all slots at their default values.
 
-inline void MaterialInfo::clear() {
-  mgValue = egValue = 0;
-  factor[WHITE] = factor[BLACK] = uint8_t(SCALE_FACTOR_NORMAL);
-  spaceWeight = 0;
-  evaluationFunction = NULL;
-  scalingFunction[WHITE] = scalingFunction[BLACK] = NULL;
+inline void MaterialInfo::clear()
+{
+    mgValue = egValue = 0;
+    factor[WHITE] = factor[BLACK] = uint8_t(SCALE_FACTOR_NORMAL);
+    spaceWeight = 0;
+    evaluationFunction = NULL;
+    scalingFunction[WHITE] = scalingFunction[BLACK] = NULL;
 }
-
 
 /// MaterialInfo::scale_factor takes a position and a color as input, and
 /// returns a scale factor for the given color.  We have to provide the
@@ -124,40 +121,40 @@ inline void MaterialInfo::clear() {
 /// the position.  For instance, in KBP vs K endgames, a scaling function
 /// which checks for draws with rook pawns and wrong-colored bishops.
 
-inline ScaleFactor MaterialInfo::scale_factor(const Position &pos, Color c)
-  const {
-  if(scalingFunction[c] != NULL) {
-    ScaleFactor sf = scalingFunction[c]->apply(pos);
-    if(sf != SCALE_FACTOR_NONE)
-      return sf;
-  }
-  return ScaleFactor(factor[c]);
+inline ScaleFactor MaterialInfo::scale_factor(const Position &pos, Color c) const
+{
+    if (scalingFunction[c] != NULL) {
+        ScaleFactor sf = scalingFunction[c]->apply(pos);
+        if (sf != SCALE_FACTOR_NONE)
+            return sf;
+    }
+    return ScaleFactor(factor[c]);
 }
-
 
 /// MaterialInfo::space_weight() simply returns the weight for the space
 /// evaluation for this material configuration.
 
-inline int MaterialInfo::space_weight() const {
-  return int(spaceWeight);
+inline int MaterialInfo::space_weight() const
+{
+    return int(spaceWeight);
 }
-
 
 /// MaterialInfo::specialized_eval_exists decides whether there is a
 /// specialized evaluation function for the current material configuration,
 /// or if the normal evaluation function should be used.
 
-inline bool MaterialInfo::specialized_eval_exists() const {
-  return evaluationFunction != NULL;
+inline bool MaterialInfo::specialized_eval_exists() const
+{
+    return evaluationFunction != NULL;
 }
-
 
 /// MaterialInfo::evaluate applies a specialized evaluation function to a
 /// given position object.  It should only be called when
 /// this->specialized_eval_exists() returns 'true'.
 
-inline Value MaterialInfo::evaluate(const Position &pos) const {
-  return evaluationFunction->apply(pos);
+inline Value MaterialInfo::evaluate(const Position &pos) const
+{
+    return evaluationFunction->apply(pos);
 }
 
 #endif // !defined(MATERIAL_H_INCLUDED)

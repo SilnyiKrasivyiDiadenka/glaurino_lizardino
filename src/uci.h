@@ -16,7 +16,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(UCI_H_INCLUDED)
 #define UCI_H_INCLUDED
 
@@ -25,6 +24,5 @@
 ////
 
 extern void uci_main_loop();
-
 
 #endif // !defined(UCI_H_INCLUDED)
