@@ -23,10 +23,10 @@
 //// Includes
 ////
 
-#include "lock.h"
 #include "movepick.h"
 #include "position.h"
 #include "search.h"
+#include <mutex>
 
 ////
 //// Constants and variables
@@ -50,7 +50,7 @@ struct SplitPoint
     bool pvNode;
     Bitboard dcCandidates;
     int master, slaves[THREAD_MAX];
-    Lock lock;
+    std::mutex lock;
     MovePicker *mp;
     volatile int moves;
     volatile int cpus;

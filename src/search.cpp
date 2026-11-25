@@ -36,6 +36,10 @@
 #include <fstream>
 #include <iostream>
 
+#if !defined(_MSC_VER)
+#include <pthread.h>
+#endif
+
 ////
 //// Local definitions
 ////
@@ -198,7 +202,7 @@ std::ofstream LogFile;
 Depth MinimumSplitDepth = 4 * OnePly;
 int MaxThreadsPerSplitPoint = 4;
 Thread Threads[THREAD_MAX];
-Lock MPLock;
+std::mutex MPLock;
 bool AllThreadsShouldExit = false;
 const int MaxActiveSplitPoints = 8;
 SplitPoint SplitPointStack[THREAD_MAX][MaxActiveSplitPoints];
@@ -286,7 +290,7 @@ int ActiveThreads = 1;
 
 // Locks.  In principle, there is no need for IOLock to be a global variable,
 // but it could turn out to be useful for debugging.
-Lock IOLock;
+std::mutex IOLock;
 
 History H; // Should be made local?
 
@@ -477,10 +481,6 @@ void init_threads()
 
     for (i = 0; i < THREAD_MAX; i++)
         Threads[i].activeSplitPoints = 0;
-
-    // Initialize global locks:
-    lock_init(&MPLock, NULL);
-    lock_init(&IOLock, NULL);
 
     init_split_point_stack();
 
@@ -1383,10 +1383,10 @@ void sp_search(SplitPoint *sp, int threadID)
 
         assert(move_is_ok(move));
 
-        lock_grab(&(sp->lock));
+        sp->lock.lock();
         sp->moves++;
         moveCount = sp->moves;
-        lock_release(&(sp->lock));
+        sp->lock.unlock();
 
         ss[sp->ply].currentMove = move;
 
@@ -1421,7 +1421,7 @@ void sp_search(SplitPoint *sp, int threadID)
             break;
 
         // New best move?
-        lock_grab(&(sp->lock));
+        sp->lock.lock();
         if (value > sp->bestValue && !thread_should_stop(threadID)) {
             sp->bestValue = value;
             if (sp->bestValue >= sp->beta) {
@@ -1432,10 +1432,10 @@ void sp_search(SplitPoint *sp, int threadID)
                 sp->finished = true;
             }
         }
-        lock_release(&(sp->lock));
+        sp->lock.unlock();
     }
 
-    lock_grab(&(sp->lock));
+    sp->lock.lock();
 
     // If this is the master thread and we have been asked to stop because of
     // a beta cutoff higher up in the tree, stop all slave threads:
@@ -1447,7 +1447,7 @@ void sp_search(SplitPoint *sp, int threadID)
     sp->cpus--;
     sp->slaves[threadID] = 0;
 
-    lock_release(&(sp->lock));
+    sp->lock.unlock();
 }
 
 // sp_search_pv() is used to search from a PV split point.  This function
@@ -1483,10 +1483,10 @@ void sp_search_pv(SplitPoint *sp, int threadID)
                                                   ? PawnValueMidgame
                                                   : pos.midgame_value_of_piece_on(move_to(move));
 
-        lock_grab(&(sp->lock));
+        sp->lock.lock();
         sp->moves++;
         moveCount = sp->moves;
-        lock_release(&(sp->lock));
+        sp->lock.unlock();
 
         ss[sp->ply].currentMove = move;
 
@@ -1526,7 +1526,7 @@ void sp_search_pv(SplitPoint *sp, int threadID)
             break;
 
         // New best move?
-        lock_grab(&(sp->lock));
+        sp->lock.lock();
         if (value > sp->bestValue && !thread_should_stop(threadID)) {
             sp->bestValue = value;
             if (value > sp->alpha) {
@@ -1547,10 +1547,10 @@ void sp_search_pv(SplitPoint *sp, int threadID)
             if (Iteration >= 2 && -value <= ValueByIteration[Iteration - 1] - ProblemMargin)
                 Problem = true;
         }
-        lock_release(&(sp->lock));
+        sp->lock.unlock();
     }
 
-    lock_grab(&(sp->lock));
+    sp->lock.lock();
 
     // If this is the master thread and we have been asked to stop because of
     // a beta cutoff higher up in the tree, stop all slave threads:
@@ -1562,7 +1562,7 @@ void sp_search_pv(SplitPoint *sp, int threadID)
     sp->cpus--;
     sp->slaves[threadID] = 0;
 
-    lock_release(&(sp->lock));
+    sp->lock.unlock();
 }
 
 /// The RootMove class
@@ -2031,10 +2031,10 @@ void poll()
         lastInfoTime = 0;
     else if (t - lastInfoTime >= 1000) {
         lastInfoTime = t;
-        lock_grab(&IOLock);
+        IOLock.lock();
         std::cout << "info nodes " << nodes_searched() << " nps " << nps() << " time " << t
                   << " hashfull " << TT.full() << std::endl;
-        lock_release(&IOLock);
+        IOLock.unlock();
         if (ShowCurrentLine)
             Threads[0].printCurrentLine = true;
     }
@@ -2081,12 +2081,12 @@ void print_current_line(SearchStack ss[], int ply, int threadID)
     assert(threadID >= 0 && threadID < ActiveThreads);
 
     if (!Threads[threadID].idle) {
-        lock_grab(&IOLock);
+        IOLock.lock();
         std::cout << "info currline " << (threadID + 1);
         for (int p = 0; p < ply; p++)
             std::cout << " " << ss[p].currentMove;
         std::cout << std::endl;
-        lock_release(&IOLock);
+        IOLock.unlock();
     }
     Threads[threadID].printCurrentLine = false;
     if (threadID + 1 < ActiveThreads)
@@ -2172,7 +2172,6 @@ void init_split_point_stack()
     for (int i = 0; i < THREAD_MAX; i++)
         for (int j = 0; j < MaxActiveSplitPoints; j++) {
             SplitPointStack[i][j].parent = NULL;
-            lock_init(&(SplitPointStack[i][j].lock), NULL);
         }
 }
 
@@ -2183,7 +2182,7 @@ void destroy_split_point_stack()
 {
     for (int i = 0; i < THREAD_MAX; i++)
         for (int j = 0; j < MaxActiveSplitPoints; j++)
-            lock_destroy(&(SplitPointStack[i][j].lock));
+            ;
 }
 
 // thread_should_stop() checks whether the thread with a given threadID has
@@ -2293,12 +2292,12 @@ bool split(const Position &p,
     SplitPoint *splitPoint;
     int i;
 
-    lock_grab(&MPLock);
+    MPLock.lock();
 
     // If no other thread is available to help us, or if we have too many
     // active split points, don't split:
     if (!idle_thread_exists(master) || Threads[master].activeSplitPoints >= MaxActiveSplitPoints) {
-        lock_release(&MPLock);
+        MPLock.unlock();
         return false;
     }
 
@@ -2347,7 +2346,7 @@ bool split(const Position &p,
             Threads[i].stop = false;
         }
 
-    lock_release(&MPLock);
+    MPLock.unlock();
 
     // Everything is set up.  The master thread enters the idle loop, from
     // which it will instantly launch a search, because its workIsWaiting
@@ -2359,7 +2358,7 @@ bool split(const Position &p,
 
     // We have returned from the idle loop, which means that all threads are
     // finished.  Update alpha, beta and bestvalue, and return:
-    lock_grab(&MPLock);
+    MPLock.lock();
     if (pvNode)
         *alpha = splitPoint->alpha;
     *beta = splitPoint->beta;
@@ -2368,7 +2367,7 @@ bool split(const Position &p,
     Threads[master].idle = false;
     Threads[master].activeSplitPoints--;
     Threads[master].splitPoint = splitPoint->parent;
-    lock_release(&MPLock);
+    MPLock.unlock();
 
     return true;
 }

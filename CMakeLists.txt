@@ -34,7 +34,6 @@ add_executable(
   src/evaluate.cpp
   src/history.h
   src/history.cpp
-  src/lock.h
   src/main.cpp
   src/material.h
   src/material.cpp

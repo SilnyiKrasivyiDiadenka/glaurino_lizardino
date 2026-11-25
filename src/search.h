@@ -25,11 +25,11 @@
 
 #include "depth.h"
 #include "history.h"
-#include "lock.h"
 #include "movegen.h"
 #include "position.h"
 #include "tt.h"
 #include "value.h"
+#include <mutex>
 
 ////
 //// Constants
@@ -65,7 +65,7 @@ extern TranspositionTable TT;
 
 extern int ActiveThreads;
 
-extern Lock SMPLock;
+extern std::mutex SMPLock;
 
 // Perhaps better to make H local, and pass as parameter to MovePicker?
 extern History H;
