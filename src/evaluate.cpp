@@ -51,6 +51,7 @@ namespace {
   int WeightPassedPawnsMidgame = 0x100;
   int WeightPassedPawnsEndgame = 0x100;
   int WeightKingSafety[2] = { 0x100, 0x100 };
+  int WeightSpace;
 
   // Internal evaluation weights.  These are applied on top of the evaluation
   // weights read from UCI parameters.  The purpose is to be able to change
@@ -62,7 +63,8 @@ namespace {
   const int WeightPawnStructureEndgameInternal = 0x100;
   const int WeightPassedPawnsMidgameInternal = 0x100;
   const int WeightPassedPawnsEndgameInternal = 0x100;
-  const int WeightKingSafetyInternal = 0x100;
+  const int WeightKingSafetyInternal = 0x110;
+  const int WeightSpaceInternal = 0x30;
 
   // Knight mobility bonus in middle game and endgame, indexed by the number
   // of attacked squares not occupied by friendly piecess.
@@ -188,6 +190,19 @@ namespace {
     ((1ULL << SQ_A8) | (1ULL << SQ_H8))
   };
 
+  // The SpaceMask[color] contains area of the board which is consdered by
+  // the space evaluation.  In the middle game, each side is given a bonus
+  // based on how many squares inside this area are safe and available for
+  // friendly minor pieces.
+  const Bitboard SpaceMask[2] = {
+    (1ULL<<SQ_C2) | (1ULL<<SQ_D2) | (1ULL<<SQ_E2) | (1ULL<<SQ_F2) |
+    (1ULL<<SQ_C3) | (1ULL<<SQ_D3) | (1ULL<<SQ_E3) | (1ULL<<SQ_F3) |
+    (1ULL<<SQ_C4) | (1ULL<<SQ_D4) | (1ULL<<SQ_E4) | (1ULL<<SQ_F4),
+    (1ULL<<SQ_C7) | (1ULL<<SQ_D7) | (1ULL<<SQ_E7) | (1ULL<<SQ_F7) |
+    (1ULL<<SQ_C6) | (1ULL<<SQ_D6) | (1ULL<<SQ_E6) | (1ULL<<SQ_F6) |
+    (1ULL<<SQ_C5) | (1ULL<<SQ_D5) | (1ULL<<SQ_E5) | (1ULL<<SQ_F5)
+  };
+    
   
   /// King safety constants and variables.  The king safety scores are taken
   /// from the array SafetyTable[].  Various little "meta-bonuses" measuring
@@ -201,8 +216,7 @@ namespace {
   const int KnightAttackWeight = 2;
 
   // Bonuses for safe checks for each piece type.  
-  int QueenContactCheckBonus = 4;
-  int RookContactCheckBonus = 2;
+  int QueenContactCheckBonus = 3;
   int QueenCheckBonus = 2;
   int RookCheckBonus = 1;
   int BishopCheckBonus = 1;
@@ -255,6 +269,7 @@ namespace {
                                     EvalInfo &ei);
   void evaluate_trapped_bishop_a1h1(const Position &pos, Square s, Color us,
                                     EvalInfo &ei);
+  void evaluate_space(const Position &pos, Color us, EvalInfo &ei);
 
   Value apply_weight(Value v, int w);
   Value scale_by_game_phase(Value mv, Value ev, Phase ph, ScaleFactor sf[]);
@@ -277,7 +292,6 @@ namespace {
 
 Value evaluate(const Position &pos, EvalInfo &ei, int threadID) {
   Color stm;
-  Square s;
   ScaleFactor factor[2] = {SCALE_FACTOR_NORMAL, SCALE_FACTOR_NORMAL};
   Phase phase;
 
@@ -336,45 +350,33 @@ Value evaluate(const Position &pos, EvalInfo &ei, int threadID) {
     Bitboard b;
 
     // Knights
-    for(int i = 0; i < pos.knight_count(c); i++) {
-      s = pos.knight_list(c, i);
-      evaluate_knight(pos, s, c, ei);
-    }
+    for(int i = 0; i < pos.knight_count(c); i++)
+      evaluate_knight(pos, pos.knight_list(c, i), c, ei);
     
     // Bishops
-    for(int i = 0; i < pos.bishop_count(c); i++) {
-      s = pos.bishop_list(c, i);
-      evaluate_bishop(pos, s, c, ei);
-    }
+    for(int i = 0; i < pos.bishop_count(c); i++)
+      evaluate_bishop(pos, pos.bishop_list(c, i), c, ei);
 
     // Rooks
-    for(int i = 0; i < pos.rook_count(c); i++) {
-      s = pos.rook_list(c, i);
-      evaluate_rook(pos, s, c, ei);
-    }
+    for(int i = 0; i < pos.rook_count(c); i++)
+      evaluate_rook(pos, pos.rook_list(c, i), c, ei);
 
     // Queens
-    for(int i = 0; i < pos.queen_count(c); i++) {
-      s = pos.queen_list(c, i);
-      evaluate_queen(pos, s, c, ei);
-    }
+    for(int i = 0; i < pos.queen_count(c); i++)
+      evaluate_queen(pos, pos.queen_list(c, i), c, ei);
 
     // Some special patterns:
 
     // Trapped bishops on a7/h7/a2/h2
     b = pos.bishops(c) & MaskA7H7[c];
-    while(b) {
-      s = pop_1st_bit(&b);
-      evaluate_trapped_bishop_a7h7(pos, s, c, ei);
-    }
+    while(b)
+      evaluate_trapped_bishop_a7h7(pos, pop_1st_bit(&b), c, ei);
 
     // Trapped bishops on a1/h1/a8/h8 in Chess960:
     if(Chess960) {
       b = pos.bishops(c) & MaskA1H1[c];
-      while(b) {
-        s = pop_1st_bit(&b);
-        evaluate_trapped_bishop_a1h1(pos, s, c, ei);
-      }
+      while(b)
+	evaluate_trapped_bishop_a1h1(pos, pop_1st_bit(&b), c, ei);
     }
 
     ei.attackedBy[c][0] =
@@ -386,10 +388,8 @@ Value evaluate(const Position &pos, EvalInfo &ei, int threadID) {
   // Kings.  Kings are evaluated after all other pieces for both sides,
   // because we need complete attack information for all pieces when computing
   // the king safety evaluation.
-  for(Color c = WHITE; c <= BLACK; c++) {
-    s = pos.king_square(c);
-    evaluate_king(pos, s, c, ei);
-  }
+  for(Color c = WHITE; c <= BLACK; c++)
+    evaluate_king(pos, pos.king_square(c), c, ei);
 
   // Evaluate passed pawns.  We evaluate passed pawns for both sides at once,
   // because we need to know which side promotes first in positions where
@@ -411,6 +411,12 @@ Value evaluate(const Position &pos, EvalInfo &ei, int threadID) {
       ei.mgValue += 
         ei.pi->kingside_storm_value(WHITE) -
         ei.pi->queenside_storm_value(BLACK);
+
+    // Evaluate space for both sides.
+    if(ei.mi->space_weight() > 0) {
+      evaluate_space(pos, WHITE, ei);
+      evaluate_space(pos, BLACK, ei);
+    }
   }
 
   // Mobility
@@ -550,8 +556,8 @@ void read_weights(Color sideToMove) {
   WeightKingSafety[opposite_color(sideToMove)] =
     compute_weight(get_option_value_int("Aggressiveness"),
                    WeightKingSafetyInternal);
-  WeightKingSafety[opposite_color(sideToMove)] =
-    (get_option_value_int("Aggressiveness") * 0x100) / 100;
+  WeightSpace =
+    compute_weight(get_option_value_int("Space"), WeightSpaceInternal);
 
   init_safety();
 }
@@ -680,7 +686,6 @@ namespace {
       ei.egValue += Sign[us] * EndgameRookOn7thBonus;
     }
 
-    //Bitboard b = p.rook_attacks(s);
     Bitboard b =
       rook_attacks_bb(s, p.occupied_squares() & ~p.rooks_and_queens(us));
     ei.attackedBy[us][ROOK] |= b;
@@ -795,14 +800,14 @@ namespace {
       Bitboard occ = p.occupied_squares(), b, b2;
 
       // Initialize the 'attackUnits' variable, which is used later on as an
-      // index to the SafetyTable[] array.  The initial is based on the number
-      // and types of the attacking pieces, the number of attacked and
+      // index to the SafetyTable[] array.  The initial value is based on the
+      // number and types of the attacking pieces, the number of attacked and
       // undefended squares around the king, the square of the king, and the
       // quality of the pawn shelter.
       int attackUnits =
         Min((ei.attackCount[them] * ei.attackWeight[them]) / 2, 25)
         + (ei.attacked[them] + count_1s_max_15(undefended)) * 3
-        + InitKingDanger[relative_square(us, s)] - shelter / 32;
+        + InitKingDanger[relative_square(us, s)] - (shelter >> 5);
 
       // Analyse safe queen contact checks:
       b = undefended & ei.attacked_by(them, QUEEN) & ~p.pieces_of_color(them);
@@ -843,21 +848,6 @@ namespace {
         }
       }
 
-      // Analyse safe rook contact checks:
-      if(RookContactCheckBonus) {
-        b = undefended & ei.attacked_by(them, ROOK) & ~p.pieces_of_color(them);
-        if(b) {
-          Bitboard attackedByOthers =
-            ei.attacked_by(them, PAWN) | ei.attacked_by(them, KNIGHT)
-            | ei.attacked_by(them, BISHOP) | ei.attacked_by(them, QUEEN);
-          b &= attackedByOthers;
-          if(b) {
-            int count = count_1s_max_15(b);
-            attackUnits += (RookContactCheckBonus * count * (sente? 2 : 1));
-          }
-        }
-      }
-      
       // Analyse safe distance checks:
       if(QueenCheckBonus > 0 || RookCheckBonus > 0) {
         b = p.rook_attacks(s) & ~p.pieces_of_color(them) & ~ei.attacked_by(us);
@@ -959,6 +949,13 @@ namespace {
           b2 = squares_in_front_of(us, s);
           b3 = b2 & ei.attacked_by(them);
           b4 = b2 & ei.attacked_by(us);
+
+          // If there is an enemy rook or queen attacking the pawn from behind,
+          // add all X-ray attacks by the rook or queen:
+          if(bit_is_set(ei.attacked_by(them,ROOK)|ei.attacked_by(them,QUEEN),s)
+             && squares_behind(us, s) & pos.rooks_and_queens(them))
+            b3 = b2;
+          
           if((b2 & pos.pieces_of_color(them)) == EmptyBoardBB) {
             // There are no enemy pieces in the pawn's path!  Are any of the
             // squares in the pawn's path attacked by the enemy?
@@ -1135,14 +1132,53 @@ namespace {
   }
 
 
-  // apply_weight applies an evaluation weight to a value.
+  // evaluate_space() computes the space evaluation for a given side.  The
+  // space evaluation is a simple bonus based on the number of safe squares
+  // available for minor pieces on the central four files on ranks 2--4.  Safe
+  // squares one, two or three squares behind a friendly pawn are counted
+  // twice.  Finally, the space bonus is scaled by a weight taken from the
+  // material hash table.
+  
+  void evaluate_space(const Position &pos, Color us, EvalInfo &ei) {
+    Color them = opposite_color(us);
+    
+    // Find the safe squares for our pieces inside the area defined by
+    // SpaceMask[us].  A square is unsafe it is attacked by an enemy
+    // pawn, or if it is undefended and attacked by an enemy piece.
+
+    Bitboard safeSquares =
+      SpaceMask[us] & ~pos.pawns(us) & ~ei.attacked_by(them, PAWN)
+      & ~(~ei.attacked_by(us) & ei.attacked_by(them));
+
+    // Find all squares which are at most three squares behind some friendly
+    // pawn.
+    Bitboard behindFriendlyPawns = pos.pawns(us);
+    if(us == WHITE) {
+      behindFriendlyPawns |= (behindFriendlyPawns >> 8);
+      behindFriendlyPawns |= (behindFriendlyPawns >> 16);
+    }
+    else {
+      behindFriendlyPawns |= (behindFriendlyPawns << 8);
+      behindFriendlyPawns |= (behindFriendlyPawns << 16);
+    }
+
+    int space =
+      count_1s_max_15(safeSquares)
+      + count_1s_max_15(behindFriendlyPawns & safeSquares);
+
+    ei.mgValue += Sign[us] *
+      apply_weight(Value(space * ei.mi->space_weight()), WeightSpace);
+  }
+
+
+  // apply_weight applies() an evaluation weight to a value.
 
   inline Value apply_weight(Value v, int w) {
     return (v*w) / 0x100;
   }
 
 
-  // scale_by_game_phase interpolates between a middle game and an endgame
+  // scale_by_game_phase() interpolates between a middle game and an endgame
   // score, based on game phase.  It also scales the return value by a
   // ScaleFactor array.
   
@@ -1187,7 +1223,6 @@ namespace {
     int maxSlope, peak, i, j;
     
     QueenContactCheckBonus = get_option_value_int("Queen Contact Check Bonus");
-    RookContactCheckBonus = get_option_value_int("Rook Contact Check Bonus");
     QueenCheckBonus = get_option_value_int("Queen Check Bonus");
     RookCheckBonus = get_option_value_int("Rook Check Bonus");
     BishopCheckBonus = get_option_value_int("Bishop Check Bonus");

@@ -23,6 +23,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 
@@ -324,6 +325,7 @@ Bitboard Position::pinned_pieces(Color c) const {
 
   return pinned;
 }
+
 
 /// Position:discovered_check_candidates() returns a bitboard containing all
 /// pieces for the given side which are candidates for giving a discovered

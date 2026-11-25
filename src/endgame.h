@@ -98,6 +98,20 @@ public:
   Value apply(const Position &pos);
 };
 
+// KBB vs KN:
+class KBBKNEvaluationFunction : public EndgameEvaluationFunction {
+public:
+  KBBKNEvaluationFunction(Color C);
+  Value apply(const Position &pos);
+};
+
+// K and two minors vs K and one or two minors:
+class KmmKmEvaluationFunction : public EndgameEvaluationFunction {
+public:
+  KmmKmEvaluationFunction(Color c);
+  Value apply(const Position &pos);
+};
+
 
 /// Abstract base class for all evaluation scaling functions:
 
@@ -203,6 +217,13 @@ extern KRKNEvaluationFunction EvaluateKRKN, EvaluateKNKR;
 
 // KQ vs KR:
 extern KQKREvaluationFunction EvaluateKQKR, EvaluateKRKQ;
+
+// KBB vs KN:
+extern KBBKNEvaluationFunction EvaluateKBBKN, EvaluateKNKBB;
+
+// K and two minors vs K and one or two minors:
+extern KmmKmEvaluationFunction EvaluateKmmKm;
+
 
 // KBP vs K:
 extern KBPKScalingFunction ScaleKBPK, ScaleKKBP;

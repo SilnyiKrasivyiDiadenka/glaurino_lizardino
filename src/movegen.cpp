@@ -211,7 +211,7 @@ int generate_checks(const Position &pos, MoveStack *mlist, Bitboard dc) {
     }
 
     // Direct checks, double pawn pushes:
-    b3 = ((b2 & Rank6BB) >> 8) & empty & pos.black_pawn_attacks(ksq);
+    b3 = ((b2 & Rank6BB) >> 8) & empty & pos.white_pawn_attacks(ksq);
     while(b3) {
       to = pop_1st_bit(&b3);
       mlist[n++].move = make_move(to - DELTA_S - DELTA_S, to);

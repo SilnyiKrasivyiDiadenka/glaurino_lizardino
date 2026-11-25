@@ -37,6 +37,8 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp);
 #endif
 
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <iomanip>
 #include <sstream>
 

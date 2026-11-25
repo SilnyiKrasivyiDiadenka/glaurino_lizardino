@@ -24,7 +24,6 @@
 //// Includes
 ////
 
-#include "types.h"
 #include "depth.h"
 #include "history.h"
 #include "lock.h"

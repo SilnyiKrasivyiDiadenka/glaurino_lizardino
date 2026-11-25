@@ -46,7 +46,7 @@ This distribution of Glaurung consists of the following files:
     for 10.5 is faster.
 
   * LinuxX86/, a subdirectory containing 32-bit and 64-bit x86 GNU/Linux
-    executables.
+    executables (not available yet).
 
   * Windows/, a subdirectory containing 32-bit and 64-bit Windows
     executables.
@@ -299,7 +299,39 @@ evaluation function.  The highlights are:
      searches.
 
    * A very long list of new UCI parameters, especially for tuning the
-     evaluation. 
+     evaluation.
+
+2008-12-20: Glaurung 2.2
+------------------------
+
+Most of the work in this version was done in May and June 2008, in
+preparation for the Open Polish Computer Chess Championships in the
+end of June.  In my last-minute tests before the tournament, it seemed
+that the development version performed worse than Glaurung 2.1; I
+therefore used version 2.1 in the OPCCC.  More recently, I have
+discovered to my great surprise that the development version *does*
+seem to play stronger than 2.1 -- something must have been wrong with
+my tests in June.  I've therefore decided to release the version that
+didn't play in Poland, with a handful of very minor improvements and
+bug fixes done in December 2008.
+
+Here are the main changes compared to version 2.1:
+
+   * Space evaluation.  This is probably the most significant
+     improvement, and makes Glaurung play more actively and
+     aggressively, particularly in the opening.
+ 
+   * Considers "rook brakes" in passed pawn evaluation.
+
+   * Some new basic endgame knowledge was added.
+
+   * Uses only the approximate eval, and not the full eval, for
+     razoring.  This looks risky, but seems to work OK in practice.
+     This idea was stolen from Marco Costalba's new chess engine
+     "Stockfish".
+
+   * Lots of minor bug fixes and parameter changes in the search and
+     evaluation.
 
 
 6. Terms of use

@@ -23,6 +23,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -30,6 +31,7 @@
 #include "book.h"
 #include "evaluate.h"
 #include "history.h"
+#include "mersenne.h"
 #include "misc.h"
 #include "movepick.h"
 #include "san.h"
@@ -111,9 +113,6 @@ namespace {
   // when the static evaluation is at most IIDMargin below beta.
   const Value IIDMargin = Value(0x100);
 
-  // Use easy moves?
-  const bool UseEasyMove = true;
-
   // Easy move margin.  An easy move candidate must be at least this much
   // better than the second best move.
   const Value EasyMoveMargin = Value(0x200);
@@ -147,11 +146,12 @@ namespace {
   // nodes, and at pre-frontier nodes:
   Value FutilityMargin0 = Value(0x80);
   Value FutilityMargin1 = Value(0x100);
-  Value FutilityMargin2 = Value(0x300);
+  Value FutilityMargin2 = Value(0x200);
 
   // Razoring
   Depth RazorDepth = 4*OnePly;
-  Value RazorMargin = Value(0x300);
+  Value RazorMargin1 = Value(0x100);
+  Value RazorMargin2 = Value(0x300);
 
   // Extensions.  Array index 0 is used at non-PV nodes, index 1 at PV nodes.
   Depth CheckExtension[2] = {OnePly, OnePly};
@@ -389,7 +389,8 @@ void think(const Position &pos, bool infinite, bool ponder, int time,
     value_from_centipawns(get_option_value_int("Futility Margin 2"));
 
   RazorDepth = (get_option_value_int("Maximum Razoring Depth") + 1) * OnePly;
-  RazorMargin = value_from_centipawns(get_option_value_int("Razoring Margin"));
+  RazorMargin2 = value_from_centipawns(get_option_value_int("Razoring Margin"));
+  RazorMargin1 = RazorMargin2 / 4;
 
   MinimumSplitDepth = get_option_value_int("Minimum Split Depth") * OnePly;
   MaxThreadsPerSplitPoint =
@@ -951,7 +952,7 @@ namespace {
         // If we are at ply 1, and we are searching the first root move at
         // ply 0, set the 'Problem' variable if the score has dropped a lot
         // (from the computer's point of view) since the previous iteration:
-        if(Iteration >= 2 &&
+        if(ply == 1 && Iteration >= 2 &&
            -value <= ValueByIteration[Iteration-1] - ProblemMargin)
           Problem = true;
       }
@@ -1103,8 +1104,8 @@ namespace {
       }
     }
     // Razoring:
-    else if(depth < RazorDepth && approximateEval < beta - RazorMargin &&
-            evaluate(pos, ei, threadID) < beta - RazorMargin) {
+    else if((depth < RazorDepth && approximateEval < beta - RazorMargin2) ||
+            (depth < 2*OnePly && approximateEval < beta - RazorMargin1)) {
       Value v = qsearch(pos, ss, beta-1, beta, Depth(0), ply, threadID);
       if(v < beta)
         return v;
@@ -1155,10 +1156,12 @@ namespace {
            && ok_to_prune(pos, move, ss[ply].threatMove, depth))
           continue;
 
-        if(depth < 3 * OnePly && approximateEval < beta) {
+        if(depth < 6 * OnePly && approximateEval < beta) {
           if(futilityValue == VALUE_NONE)
             futilityValue = evaluate(pos, ei, threadID)
-              + ((depth < 2 * OnePly)? FutilityMargin1 : FutilityMargin2);
+              + ((depth < 2 * OnePly)?
+                 FutilityMargin1 :
+                 FutilityMargin2 + (depth - 2*OnePly) * 32);
           if(futilityValue < beta) {
             if(futilityValue > bestValue)
               bestValue = futilityValue;
@@ -1984,7 +1987,7 @@ namespace {
 
     return true;
   }
-  
+
 
   // fail_high_ply_1() checks if some thread is currently resolving a fail
   // high at ply 1 at the node below the first root node.  This information
