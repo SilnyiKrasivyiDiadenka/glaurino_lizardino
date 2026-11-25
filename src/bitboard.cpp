@@ -21,6 +21,7 @@
 //// Includes
 ////
 
+#include <cstdlib>
 #include <iostream>
 
 #include "bitboard.h"

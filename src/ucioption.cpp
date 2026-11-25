@@ -24,6 +24,7 @@
 #include <cassert>
 #include <cstdarg>
 #include <cstdio>
+#include <cstring>
 
 #include "misc.h"
 #include "thread.h"
@@ -71,6 +72,7 @@ namespace {
     { "Pawn Structure (Endgame)", "100", "100", SPIN, 0, 200, {""} },
     { "Passed Pawns (Middle Game)", "100", "100", SPIN, 0, 200, {""} },
     { "Passed Pawns (Endgame)", "100", "100", SPIN, 0, 200, {""} },
+    { "Space", "100", "100", SPIN, 0, 200, {""} },
     { "Aggressiveness", "100", "100", SPIN, 0, 200, {""} },
     { "Cowardice", "100", "100", SPIN, 0, 200, {""} },
     { "King Safety Curve", "Quadratic", "Quadratic", COMBO, 0, 0,
@@ -79,8 +81,7 @@ namespace {
     { "King Safety X Intercept", "0", "0", SPIN, 0, 20, {""} },
     { "King Safety Max Slope", "30", "30", SPIN, 10, 100, {""} },
     { "King Safety Max Value", "500", "500", SPIN, 100, 1000, {""} },
-    { "Queen Contact Check Bonus", "4", "4", SPIN, 0, 8, {""} },
-    { "Rook Contact Check Bonus", "2", "2", SPIN, 0, 4, {""} },
+    { "Queen Contact Check Bonus", "3", "3", SPIN, 0, 8, {""} },
     { "Queen Check Bonus", "2", "2", SPIN, 0, 4, {""} },
     { "Rook Check Bonus", "1", "1", SPIN, 0, 4, {""} },
     { "Bishop Check Bonus", "1", "1", SPIN, 0, 4, {""} },
@@ -107,7 +108,7 @@ namespace {
     { "Futility Pruning (Quiescence Search)", "true", "true", CHECK, 0, 0, {""} },
     { "Futility Margin 0", "50", "50", SPIN, 0, 1000, {""} },
     { "Futility Margin 1", "100", "100", SPIN, 0, 1000, {""} },
-    { "Futility Margin 2", "300", "300", SPIN, 0, 1000, {""} },
+    { "Futility Margin 2", "200", "200", SPIN, 0, 1000, {""} },
     { "Maximum Razoring Depth", "3", "3", SPIN, 0, 4, {""} },
     { "Razoring Margin", "300", "300", SPIN, 150, 600, {""} },
     { "Randomness", "0", "0", SPIN, 0, 10, {""} },

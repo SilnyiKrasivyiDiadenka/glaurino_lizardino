@@ -22,6 +22,7 @@
 ////
 
 #include <cassert>
+#include <cstring>
 
 #include "material.h"
 
@@ -41,6 +42,7 @@ namespace {
   Key KRKBMaterialKey, KBKRMaterialKey;
   Key KRKNMaterialKey, KNKRMaterialKey;
   Key KQKRMaterialKey, KRKQMaterialKey;
+  Key KBBKNMaterialKey, KNKBBMaterialKey;
   Key KRPKRMaterialKey, KRKRPMaterialKey;
   Key KRPPKRPMaterialKey, KRPKRPPMaterialKey;
   Key KNNKMaterialKey, KKNNMaterialKey;
@@ -144,6 +146,12 @@ void MaterialInfo::init() {
   KPKPMaterialKey =
     Position::zobMaterial[WHITE][PAWN][1] ^
     Position::zobMaterial[BLACK][PAWN][1];
+  KBBKNMaterialKey =
+    Position::zobMaterial[WHITE][BISHOP][2] ^
+    Position::zobMaterial[BLACK][KNIGHT][1];
+  KNKBBMaterialKey =
+    Position::zobMaterial[WHITE][KNIGHT][1] ^
+    Position::zobMaterial[BLACK][BISHOP][2];
 }
 
 
@@ -254,6 +262,14 @@ MaterialInfo *MaterialInfoTable::get_material_info(const Position &pos) {
     mi->evaluationFunction = &EvaluateKRKQ;
     return mi;
   }
+  else if(key == KBBKNMaterialKey) {
+    mi->evaluationFunction = &EvaluateKBBKN;
+    return mi;
+  }
+  else if(key == KNKBBMaterialKey) {
+    mi->evaluationFunction = &EvaluateKNKBB;
+    return mi;
+  }
   else if(pos.non_pawn_material(BLACK) == Value(0) &&
           pos.pawn_count(BLACK) == 0 &&
           pos.non_pawn_material(WHITE) >= RookValueEndgame) {
@@ -266,6 +282,19 @@ MaterialInfo *MaterialInfoTable::get_material_info(const Position &pos) {
     mi->evaluationFunction = &EvaluateKKX;
     return mi;
   }
+  else if(pos.pawns() == EmptyBoardBB && pos.rooks() == EmptyBoardBB
+          && pos.queens() == EmptyBoardBB) {
+    // Minor piece endgame with at least one minor piece per side,
+    // and no pawns.
+    assert(pos.knights(WHITE) | pos.bishops(WHITE));
+    assert(pos.knights(BLACK) | pos.bishops(BLACK));
+
+    if(pos.bishop_count(WHITE) + pos.knight_count(WHITE) <= 2
+       && pos.bishop_count(BLACK) + pos.knight_count(BLACK) <= 2) {
+      mi->evaluationFunction = &EvaluateKmmKm;
+      return mi;
+    }
+  }    
 
   // OK, we didn't find any special evaluation function for the current
   // material configuration.  Is there a suitable scaling function?
@@ -347,6 +376,15 @@ MaterialInfo *MaterialInfoTable::get_material_info(const Position &pos) {
       mi->scalingFunction[WHITE] = &ScaleKPKPw;
       mi->scalingFunction[BLACK] = &ScaleKPKPb;
     }
+  }
+
+  // Compute the space weight
+  if(pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >=
+     2*QueenValueMidgame + 4*RookValueMidgame + 2*KnightValueMidgame) {
+    int minorPieceCount =
+      pos.knight_count(WHITE) + pos.knight_count(BLACK)
+      + pos.bishop_count(WHITE) + pos.bishop_count(BLACK);
+    mi->spaceWeight = minorPieceCount * minorPieceCount;
   }
 
   // Evaluate the material balance.

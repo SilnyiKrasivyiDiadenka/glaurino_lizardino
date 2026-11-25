@@ -51,6 +51,7 @@ public:
   Value mg_value() const;
   Value eg_value() const;
   ScaleFactor scale_factor(const Position &pos, Color c) const;
+  int space_weight() const;
   bool specialized_eval_exists() const;
   Value evaluate(const Position &pos) const;
 
@@ -62,6 +63,7 @@ private:
   Key key;
   int16_t mgValue;
   int16_t egValue;
+  uint8_t spaceWeight;
   uint8_t factor[2];
   EndgameEvaluationFunction *evaluationFunction;
   ScalingFunction *scalingFunction[2];
@@ -109,6 +111,7 @@ inline Value MaterialInfo::eg_value() const {
 inline void MaterialInfo::clear() {
   mgValue = egValue = 0;
   factor[WHITE] = factor[BLACK] = uint8_t(SCALE_FACTOR_NORMAL);
+  spaceWeight = 0;
   evaluationFunction = NULL;
   scalingFunction[WHITE] = scalingFunction[BLACK] = NULL;
 }
@@ -129,6 +132,14 @@ inline ScaleFactor MaterialInfo::scale_factor(const Position &pos, Color c)
       return sf;
   }
   return ScaleFactor(factor[c]);
+}
+
+
+/// MaterialInfo::space_weight() simply returns the weight for the space
+/// evaluation for this material configuration.
+
+inline int MaterialInfo::space_weight() const {
+  return int(spaceWeight);
 }
 
 

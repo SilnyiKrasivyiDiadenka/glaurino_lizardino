@@ -24,6 +24,7 @@
 //// Includes
 ////
 
+#include <cstdlib>
 #include <string>
 
 #include "color.h"
