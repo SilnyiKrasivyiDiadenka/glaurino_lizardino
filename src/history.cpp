@@ -39,9 +39,9 @@ History::History()
 
 void History::clear()
 {
-    memset(history, 0, 2 * 8 * 64 * sizeof(int));
-    memset(successCount, 0, 2 * 8 * 64 * sizeof(int));
-    memset(failureCount, 0, 2 * 8 * 64 * sizeof(int));
+    std::memset(history, 0, 2 * 8 * 64 * sizeof(int));
+    std::memset(successCount, 0, 2 * 8 * 64 * sizeof(int));
+    std::memset(failureCount, 0, 2 * 8 * 64 * sizeof(int));
 }
 
 /// History::success() registers a move as being successful.  This is done

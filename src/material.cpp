@@ -147,7 +147,7 @@ MaterialInfoTable::~MaterialInfoTable()
 
 void MaterialInfoTable::clear()
 {
-    memset(entries, 0, size * sizeof(MaterialInfo));
+    std::memset(entries, 0, size * sizeof(MaterialInfo));
 }
 
 /// MaterialInfoTable::get_material_info() takes a position object as input,

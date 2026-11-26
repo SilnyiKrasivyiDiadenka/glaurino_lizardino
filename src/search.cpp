@@ -2333,13 +2333,13 @@ bool split(const Position &p,
         splitPoint->slaves[i] = 0;
 
     // Copy the current position and the search stack to the master thread:
-    memcpy(splitPoint->sstack[master], sstck, (ply + 1) * sizeof(SearchStack));
+    std::memcpy(splitPoint->sstack[master], sstck, (ply + 1) * sizeof(SearchStack));
     Threads[master].splitPoint = splitPoint;
 
     // Make copies of the current position and search stack for each thread:
     for (i = 0; i < ActiveThreads && splitPoint->cpus < MaxThreadsPerSplitPoint; i++)
         if (thread_is_available(i, master)) {
-            memcpy(splitPoint->sstack[i], sstck, (ply + 1) * sizeof(SearchStack));
+            std::memcpy(splitPoint->sstack[i], sstck, (ply + 1) * sizeof(SearchStack));
             Threads[i].splitPoint = splitPoint;
             splitPoint->slaves[i] = 1;
             splitPoint->cpus++;

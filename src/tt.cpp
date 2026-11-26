@@ -80,7 +80,7 @@ void TranspositionTable::set_size(unsigned mbSize)
 
 void TranspositionTable::clear()
 {
-    memset(entries, 0, size * 4 * sizeof(TTEntry));
+    std::memset(entries, 0, size * 4 * sizeof(TTEntry));
 }
 
 /// TranspositionTable::store writes a new entry containing a position,

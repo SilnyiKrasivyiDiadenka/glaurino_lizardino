@@ -22,9 +22,9 @@
 
 #include "ucioption.h"
 #include "misc.h"
-#include "thread.h"
 #include <cassert>
 #include <cstring>
+#include <iostream>
 
 ////
 //// Variables

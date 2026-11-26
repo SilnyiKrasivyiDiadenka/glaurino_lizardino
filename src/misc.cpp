@@ -21,11 +21,13 @@
 ////
 
 #include "misc.h"
+#include <array>
 #include <cstdlib>
-#include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <ranges>
 #include <sstream>
+#include <string>
 
 ////
 //// Functions
@@ -39,23 +41,28 @@
 const std::string engine_name()
 {
     if (EngineVersion == "") {
-        static const char monthNames[12][4]
+        static const std::array<std::string, 12> monthNames
             = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-        const char *dateString = __DATE__;
+        const std::string dateString = __DATE__;
+
+        int monthNr{0};
+        for (const auto &[i, month] : monthNames | std::views::enumerate) {
+            if (dateString.substr(0, 3) == month) {
+                monthNr = i + 1;
+                break;
+            }
+        }
+
+        int day = std::stoi(dateString.substr(4, 2));
+
         std::stringstream s;
-        int month = 0, day = 0;
-
-        for (int i = 0; i < 12; i++)
-            if (strncmp(dateString, monthNames[i], 3) == 0)
-                month = i + 1;
-        day = atoi(dateString + 4);
-
-        s << "Glaurung " << (dateString + 9) << std::setfill('0') << std::setw(2) << month
-          << std::setfill('0') << std::setw(2) << day;
+        s << "Glaurung " << std::stoi(dateString.substr(9)) << std::setfill('0') << std::setw(2)
+          << monthNr << std::setfill('0') << std::setw(2) << day;
 
         return s.str();
-    } else
+    } else {
         return "Glaurung " + EngineVersion;
+    }
 }
 
 /// get_system_time() returns the current system time, measured in

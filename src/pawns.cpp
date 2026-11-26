@@ -120,7 +120,7 @@ PawnInfoTable::~PawnInfoTable()
 
 void PawnInfoTable::clear()
 {
-    memset(entries, 0, size * sizeof(PawnInfo));
+    std::memset(entries, 0, size * sizeof(PawnInfo));
 }
 
 /// PawnInfoTable::get_pawn_info() takes a position object as input, computes
