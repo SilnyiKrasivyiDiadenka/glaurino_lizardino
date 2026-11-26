@@ -167,9 +167,15 @@ bool UCIInputParser::at_end_of_line()
 
 void wait_for_command()
 {
+    while (input.ReaderStatus() == InputReader::INPUT_QUEUE_STATUS::EMPTY) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
     std::string command;
-    if (!std::getline(std::cin, command))
+    if (input.ReaderStatus() == InputReader::INPUT_QUEUE_STATUS::END) {
         command = "quit";
+    } else {
+        command = input.PopCommand();
+    }
     handle_command(command);
 }
 
@@ -187,7 +193,7 @@ void handle_command(const std::string &command)
         OpeningBook.close();
         stop_threads();
         quit_eval();
-        exit(0);
+        std::exit(0);
     } else if (s == "uci") {
         std::cout << "id name " << engine_name() << std::endl;
         std::cout << "id author Tord Romstad" << std::endl;

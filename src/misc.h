@@ -23,7 +23,11 @@
 //// Includes
 ////
 
+#include <atomic>
+#include <mutex>
+#include <queue>
 #include <string>
+#include <thread>
 
 ////
 //// Constants
@@ -41,6 +45,28 @@ const std::string EngineVersion = "2.2.1";
 extern const std::string engine_name();
 extern int get_system_time();
 extern int cpu_count();
-extern int Bioskey();
+
+class InputReader
+{
+public:
+    enum class INPUT_QUEUE_STATUS {
+        EMPTY,
+        HAS_COMMAND,
+        END,
+    };
+
+    InputReader();
+    ~InputReader();
+    INPUT_QUEUE_STATUS ReaderStatus() const;
+    std::string PopCommand();
+
+private:
+    std::queue<std::string> commands_;
+    mutable std::mutex mtx_;
+    std::atomic<bool> running_{true};
+    std::jthread worker_;
+};
+
+extern InputReader input;
 
 #endif // !defined(MISC_H_INCLUDED)

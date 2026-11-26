@@ -33,7 +33,6 @@
 #include "search.h"
 #include "uci.h"
 #include "ucioption.h"
-#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 
@@ -44,10 +43,8 @@
 int main(int argc, char *argv[])
 {
     // Disable IO buffering
-    setbuf(stdin, NULL);
-    setbuf(stdout, NULL);
-    std::cout.rdbuf()->pubsetbuf(NULL, 0);
-    std::cin.rdbuf()->pubsetbuf(NULL, 0);
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
 
     // Initialization
 
@@ -73,7 +70,7 @@ int main(int argc, char *argv[])
         if (std::string(argv[1]) == "bench") {
             if (argc != 4) {
                 std::cout << "Usage: glaurung bench <hash> <threads>" << std::endl;
-                exit(0);
+                std::exit(0);
             }
             benchmark(std::string(argv[2]), std::string(argv[3]));
             return 0;

@@ -31,7 +31,6 @@
 #include "tt.h"
 #include "ucioption.h"
 #include <cassert>
-#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -462,7 +461,7 @@ void think(const Position &pos,
         OpeningBook.close();
         stop_threads();
         quit_eval();
-        exit(0);
+        std::exit(0);
     }
 
     Idle = true;
@@ -2000,26 +1999,30 @@ int nps()
 
 void poll()
 {
-    int t, data;
+    int t;
     static int lastInfoTime;
 
     t = current_search_time();
 
     //  Poll for input
-    data = Bioskey();
-    if (data) {
-        char input[256];
-        if (fgets(input, 255, stdin) == NULL)
-            strcpy(input, "quit\n");
-        if (strncmp(input, "quit", 4) == 0) {
+    if (input.ReaderStatus() != InputReader::INPUT_QUEUE_STATUS::EMPTY) {
+        std::string command;
+        if (input.ReaderStatus() == InputReader::INPUT_QUEUE_STATUS::END) {
+            command = "quit";
+        } else {
+            command = input.PopCommand();
+        }
+
+        if (command.rfind("quit", 0) == 0) {
             AbortSearch = true;
             PonderSearch = false;
             Quit = true;
-        } else if (strncmp(input, "stop", 4) == 0) {
+        } else if (command.rfind("stop", 0) == 0) {
             AbortSearch = true;
             PonderSearch = false;
-        } else if (strncmp(input, "ponderhit", 9) == 0)
+        } else if (command.rfind("ponderhit", 0) == 0) {
             ponderhit();
+        }
     }
 
     // Print search information
@@ -2102,17 +2105,22 @@ void print_current_line(SearchStack ss[], int ply, int threadID)
 
 void wait_for_stop_or_ponderhit()
 {
-    std::string command;
-
     while (true) {
-        if (!std::getline(std::cin, command))
+        while (input.ReaderStatus() == InputReader::INPUT_QUEUE_STATUS::EMPTY) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        std::string command;
+        if (input.ReaderStatus() == InputReader::INPUT_QUEUE_STATUS::END) {
             command = "quit";
+        } else {
+            command = input.PopCommand();
+        }
 
         if (command == "quit") {
             OpeningBook.close();
             stop_threads();
             quit_eval();
-            exit(0);
+            std::exit(0);
         } else if (command == "ponderhit" || command == "stop")
             break;
     }

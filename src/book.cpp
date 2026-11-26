@@ -30,7 +30,6 @@
 #include "mersenne.h"
 #include "movegen.h"
 #include <cassert>
-#include <cstdio>
 
 ////
 //// Global variables

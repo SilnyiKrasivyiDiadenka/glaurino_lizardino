@@ -24,7 +24,6 @@
 #include "misc.h"
 #include "thread.h"
 #include <cassert>
-#include <cstdio>
 #include <cstring>
 
 ////

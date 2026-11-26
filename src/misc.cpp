@@ -20,6 +20,7 @@
 //// Includes
 ////
 
+#include <iostream>
 #if !defined(_MSC_VER)
 
 #include <sys/time.h>
@@ -36,7 +37,6 @@ int gettimeofday(struct timeval *tp, struct timezone *tzp);
 #endif
 
 #include "misc.h"
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
@@ -110,58 +110,43 @@ int cpu_count()
 
 #endif
 
-/*
-  From Beowulf, from Olithink
-*/
-#ifndef _WIN32
-/* Non-windows version */
-int Bioskey()
-{
-    fd_set readfds;
-    struct timeval timeout;
-
-    FD_ZERO(&readfds);
-    FD_SET(fileno(stdin), &readfds);
-    /* Set to timeout immediately */
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-    select(16, &readfds, 0, 0, &timeout);
-
-    return (FD_ISSET(fileno(stdin), &readfds));
-}
-
-#else
-/* Windows-version */
-#include <conio.h>
-#include <windows.h>
-int Bioskey()
-{
-    static int init = 0, pipe;
-    static HANDLE inh;
-    DWORD dw;
-    /* If we're running under XBoard then we can't use _kbhit() as the input
-     * commands are sent to us directly over the internal pipe */
-
-#if defined(FILE_CNT)
-    if (stdin->_cnt > 0)
-        return stdin->_cnt;
-#endif
-    if (!init) {
-        init = 1;
-        inh = GetStdHandle(STD_INPUT_HANDLE);
-        pipe = !GetConsoleMode(inh, &dw);
-        if (!pipe) {
-            SetConsoleMode(inh, dw & ~(ENABLE_MOUSE_INPUT | ENABLE_WINDOW_INPUT));
-            FlushConsoleInputBuffer(inh);
+InputReader::InputReader()
+    : worker_(std::jthread([this](std::stop_token stopToken) {
+        std::string line;
+        while (!stopToken.stop_requested() && std::getline(std::cin, line)) {
+            std::lock_guard<std::mutex> lock(mtx_);
+            commands_.push(std::move(line));
         }
-    }
-    if (pipe) {
-        if (!PeekNamedPipe(inh, NULL, 0, NULL, &dw, NULL))
-            return 1;
-        return dw;
+        running_ = false;
+    })) {};
+
+InputReader::~InputReader()
+{
+    worker_.request_stop();
+    std::exit(0);
+}
+
+InputReader::INPUT_QUEUE_STATUS InputReader::ReaderStatus() const
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+    if (!running_) {
+        return InputReader::INPUT_QUEUE_STATUS::END;
+    } else if (!commands_.empty()) {
+        return InputReader::INPUT_QUEUE_STATUS::HAS_COMMAND;
     } else {
-        GetNumberOfConsoleInputEvents(inh, &dw);
-        return dw <= 1 ? 0 : dw;
+        return InputReader::INPUT_QUEUE_STATUS::EMPTY;
     }
 }
-#endif
+
+std::string InputReader::PopCommand()
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+    if (commands_.empty()) {
+        return "";
+    }
+    auto cmd = std::move(commands_.front());
+    commands_.pop();
+    return cmd;
+}
+
+InputReader input;
