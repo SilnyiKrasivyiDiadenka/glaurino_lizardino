@@ -76,6 +76,16 @@ add_executable(
 find_package(Threads REQUIRED)
 target_link_libraries(glaurino_lizardino PRIVATE Threads::Threads)
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+  if(MINGW OR WIN32)
+    target_link_options(glaurino_lizardino PRIVATE $<$<CONFIG:Release>:-static>)
+  elseif(UNIX AND NOT APPLE)
+    target_link_options(
+      glaurino_lizardino PRIVATE $<$<CONFIG:Release>:-static-libgcc>
+      $<$<CONFIG:Release>:-static-libstdc++>)
+  endif()
+endif()
+
 include(GNUInstallDirs)
 install(
   TARGETS glaurino_lizardino
