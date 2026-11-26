@@ -175,7 +175,7 @@ int BestMoveChangesByIteration[PLY_MAX_PLUS_2];
 int MultiPV = 1;
 
 // Time managment variables
-int SearchStartTime;
+std::int64_t SearchStartTime;
 int MaxNodes, MaxDepth;
 int MaxSearchTime, AbsoluteMaxSearchTime, ExtraSearchTime;
 Move BestRootMove, PonderMove, EasyMove;
@@ -242,7 +242,7 @@ bool ok_to_do_nullmove(const Position &pos);
 bool ok_to_prune(const Position &pos, Move m, Move threat, Depth d);
 
 bool fail_high_ply_1();
-int current_search_time();
+std::int64_t current_search_time();
 int nps();
 void poll();
 void ponderhit();
@@ -1980,7 +1980,7 @@ bool fail_high_ply_1()
 // current_search_time() returns the number of milliseconds which have passed
 // since the beginning of the current search.
 
-int current_search_time()
+std::int64_t current_search_time()
 {
     return get_system_time() - SearchStartTime;
 }

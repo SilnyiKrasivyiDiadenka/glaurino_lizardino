@@ -43,7 +43,7 @@ const std::string EngineVersion = "2.2.1";
 ////
 
 extern const std::string engine_name();
-extern int get_system_time();
+extern std::int64_t get_system_time();
 extern int cpu_count();
 
 class InputReader

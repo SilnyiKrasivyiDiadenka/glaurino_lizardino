@@ -20,26 +20,11 @@
 //// Includes
 ////
 
-#include <iostream>
-#if !defined(_MSC_VER)
-
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#else
-
-#include "dos.h"
-#include <time.h>
-#include <windows.h>
-int gettimeofday(struct timeval *tp, struct timezone *tzp);
-
-#endif
-
 #include "misc.h"
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
 ////
@@ -76,39 +61,18 @@ const std::string engine_name()
 /// get_system_time() returns the current system time, measured in
 /// milliseconds.
 
-int get_system_time()
+std::int64_t get_system_time()
 {
-    struct timeval t;
-    gettimeofday(&t, NULL);
-    return t.tv_sec * 1000 + t.tv_usec / 1000;
+    using namespace std::chrono;
+    return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 /// cpu_count() tries to detect the number of CPU cores.
 
-#if !defined(_MSC_VER)
-
-#if defined(_SC_NPROCESSORS_ONLN)
 int cpu_count()
 {
-    return std::min(sysconf(_SC_NPROCESSORS_ONLN), 8L);
+    return std::min(std::thread::hardware_concurrency(), 8u);
 }
-#else
-int cpu_count()
-{
-    return 1;
-}
-#endif
-
-#else
-
-int cpu_count()
-{
-    SYSTEM_INFO s;
-    GetSystemInfo(&s);
-    return Min(s.dwNumberOfProcessors, 8);
-}
-
-#endif
 
 InputReader::InputReader()
     : worker_(std::jthread([this](std::stop_token stopToken) {
