@@ -1437,7 +1437,6 @@ void sp_search_pv(SplitPoint *sp, int threadID)
     SearchStack *ss = sp->sstack[threadID];
     Value value;
     Move move;
-    int moveCount = sp->moves;
 
     while (sp->alpha < sp->beta && !thread_should_stop(threadID)
            && (move = sp->mp->get_next_move(sp->mtx)) != MOVE_NONE) {
@@ -1455,7 +1454,7 @@ void sp_search_pv(SplitPoint *sp, int threadID)
 
         sp->mtx.lock();
         sp->moves++;
-        moveCount = sp->moves;
+        const int moveCount = sp->moves;
         sp->mtx.unlock();
 
         ss[sp->ply].currentMove = move;
