@@ -1338,7 +1338,6 @@ void sp_search(SplitPoint *sp, int threadID)
     SearchStack *ss = sp->sstack[threadID];
     Value value;
     Move move;
-    int moveCount = sp->moves;
     bool isCheck = pos.is_check();
     bool useFutilityPruning = UseFutilityPruning && sp->depth < SelectiveDepth && !isCheck;
 
@@ -1354,7 +1353,7 @@ void sp_search(SplitPoint *sp, int threadID)
 
         sp->mtx.lock();
         sp->moves++;
-        moveCount = sp->moves;
+        int moveCount = sp->moves;
         sp->mtx.unlock();
 
         ss[sp->ply].currentMove = move;
