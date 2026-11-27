@@ -25,6 +25,8 @@
 
 #include "position.h"
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -130,5 +132,7 @@ inline void PawnInfo::clear()
     qsStormValue[WHITE] = qsStormValue[BLACK] = 0;
     halfOpenFiles[WHITE] = halfOpenFiles[BLACK] = 0xFF;
 }
+
+} // namespace Glaurung
 
 #endif // !defined(PAWNS_H_INCLUDED)

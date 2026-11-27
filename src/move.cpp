@@ -26,6 +26,8 @@
 #include "ucioption.h"
 #include <cassert>
 
+namespace Glaurung {
+
 ////
 //// Functions
 ////
@@ -150,3 +152,5 @@ bool move_is_ok(Move m)
 {
     return square_is_ok(move_from(m)) && square_is_ok(move_to(m));
 }
+
+} // namespace Glaurung

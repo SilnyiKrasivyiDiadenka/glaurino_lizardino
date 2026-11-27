@@ -27,6 +27,8 @@
 #include "position.h"
 #include "scale.h"
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -156,5 +158,7 @@ inline Value MaterialInfo::evaluate(const Position &pos) const
 {
     return evaluationFunction->apply(pos);
 }
+
+} // namespace Glaurung
 
 #endif // !defined(MATERIAL_H_INCLUDED)

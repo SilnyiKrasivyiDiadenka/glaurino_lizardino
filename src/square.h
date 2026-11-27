@@ -28,6 +28,8 @@
 #include <cstdlib>
 #include <string>
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -319,5 +321,7 @@ extern const std::string square_to_string(Square s);
 extern bool file_is_ok(File f);
 extern bool rank_is_ok(Rank r);
 extern bool square_is_ok(Square s);
+
+} // namespace Glaurung
 
 #endif // !defined(SQUARE_H_INCLUDED)

@@ -25,10 +25,14 @@
 
 #include <string>
 
+namespace Glaurung {
+
 ////
 //// Prototypes
 ////
 
 extern void benchmark(const std::string &ttSize, const std::string &threads);
+
+} // namespace Glaurung
 
 #endif // !defined(BENCHMARK_H_INCLUDED)

@@ -33,6 +33,8 @@
 #include "position.h"
 #include <string>
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -79,5 +81,7 @@ private:
 ////
 
 extern Book OpeningBook;
+
+} // namespace Glaurung
 
 #endif // !defined(BOOK_H_INCLUDED)

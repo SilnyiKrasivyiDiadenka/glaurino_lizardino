@@ -37,6 +37,8 @@
 #include <iostream>
 #include <thread>
 
+namespace Glaurung {
+
 ////
 //// Local definitions
 ////
@@ -2359,3 +2361,5 @@ void wake_sleeping_threads()
 }
 
 } // namespace
+
+} // namespace Glaurung

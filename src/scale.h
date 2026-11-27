@@ -25,6 +25,8 @@
 
 #include "value.h"
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -44,5 +46,7 @@ inline Value apply_scale_factor(Value v, ScaleFactor f)
 {
     return Value((v * f) / int(SCALE_FACTOR_NORMAL));
 }
+
+} // namespace Glaurung
 
 #endif // !defined(SCALE_H_INCLUDED)

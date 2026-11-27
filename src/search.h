@@ -31,6 +31,8 @@
 #include "value.h"
 #include <mutex>
 
+namespace Glaurung {
+
 ////
 //// Constants
 ////
@@ -87,5 +89,7 @@ extern void think(const Position &pos,
                   int maxTime,
                   Move searchMoves[]);
 extern int64_t nodes_searched();
+
+} // namespace Glaurung
 
 #endif // !defined(SEARCH_H_INCLUDED)

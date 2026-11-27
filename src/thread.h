@@ -28,6 +28,8 @@
 #include "search.h"
 #include <mutex>
 
+namespace Glaurung {
+
 ////
 //// Constants and variables
 ////
@@ -70,5 +72,7 @@ struct alignas(64) Thread
     std::atomic<bool> workIsWaiting;
     std::atomic<bool> printCurrentLine;
 };
+
+} // namespace Glaurung
 
 #endif // !defined(THREAD_H_INCLUDED)

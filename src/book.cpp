@@ -31,6 +31,8 @@
 #include "movegen.h"
 #include <cassert>
 
+namespace Glaurung {
+
 ////
 //// Global variables
 ////
@@ -498,3 +500,5 @@ uint64_t read_integer(FILE *file, int size)
 }
 
 } // namespace
+
+} // namespace Glaurung

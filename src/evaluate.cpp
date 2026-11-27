@@ -29,6 +29,8 @@
 #include <cassert>
 #include <cstring>
 
+namespace Glaurung {
+
 ////
 //// Local definitions
 ////
@@ -1246,3 +1248,5 @@ void init_safety()
 }
 
 } // namespace
+
+} // namespace Glaurung

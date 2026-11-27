@@ -27,6 +27,8 @@
 #include "position.h"
 #include <mutex>
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -82,5 +84,7 @@ inline Bitboard MovePicker::discovered_check_candidates()
 {
     return dc;
 }
+
+} // namespace Glaurung
 
 #endif // !defined(MOVEPICK_H_INCLUDED)

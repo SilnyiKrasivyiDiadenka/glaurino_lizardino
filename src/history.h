@@ -27,6 +27,8 @@
 #include "move.h"
 #include "piece.h"
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -68,5 +70,7 @@ private:
 /// would be better to scale down the history table at regular intervals?
 
 const int HistoryMax = 50000;
+
+} // namespace Glaurung
 
 #endif // !defined(HISTORY_H_INCLUDED)

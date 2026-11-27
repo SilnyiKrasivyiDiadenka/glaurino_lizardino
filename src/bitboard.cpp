@@ -25,6 +25,8 @@
 #include <cstdlib>
 #include <iostream>
 
+namespace Glaurung {
+
 ////
 //// Constants and variables
 ////
@@ -509,3 +511,5 @@ void init_file_and_rank_attacks()
 #endif // defined(USE_COMPACT_ROOK_ATTACKS)
 
 } // namespace
+
+} // namespace Glaurung

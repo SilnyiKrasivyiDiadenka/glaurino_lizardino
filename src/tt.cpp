@@ -25,6 +25,8 @@
 #include <cmath>
 #include <cstring>
 
+namespace Glaurung {
+
 ////
 //// Functions
 ////
@@ -224,3 +226,5 @@ int TTEntry::generation() const
 {
     return (data >> 23);
 }
+
+} // namespace Glaurung

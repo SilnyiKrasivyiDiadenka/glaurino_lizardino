@@ -26,6 +26,8 @@
 #include "square.h"
 #include "types.h"
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -80,5 +82,7 @@ inline SignedDirection signed_direction_between_squares(Square s1, Square s2)
 ////
 
 extern void init_direction_table();
+
+} // namespace Glaurung
 
 #endif // !defined(DIRECTION_H_INCLUDED)

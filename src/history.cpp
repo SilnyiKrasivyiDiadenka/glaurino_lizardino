@@ -24,6 +24,8 @@
 #include <cassert>
 #include <cstring>
 
+namespace Glaurung {
+
 ////
 //// Functions
 ////
@@ -97,3 +99,5 @@ bool History::ok_to_prune(Piece p, Move m, Depth d) const
 
     return (int(d) * successCount[p][move_to(m)] < failureCount[p][move_to(m)]);
 }
+
+} // namespace Glaurung

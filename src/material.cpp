@@ -24,6 +24,8 @@
 #include <cassert>
 #include <cstring>
 
+namespace Glaurung {
+
 ////
 //// Local definitions
 ////
@@ -385,3 +387,5 @@ MaterialInfo *MaterialInfoTable::get_material_info(const Position &pos)
 
     return mi;
 }
+
+} // namespace Glaurung

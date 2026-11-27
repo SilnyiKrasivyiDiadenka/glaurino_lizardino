@@ -29,6 +29,8 @@
 #include <sstream>
 #include <string>
 
+namespace Glaurung {
+
 ////
 //// Functions
 ////
@@ -121,3 +123,5 @@ std::string InputReader::PopCommand()
 }
 
 InputReader input;
+
+} // namespace Glaurung

@@ -26,6 +26,8 @@
 #include "color.h"
 #include "square.h"
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -174,5 +176,7 @@ extern char piece_type_to_char(PieceType pt, bool upcase);
 extern PieceType piece_type_from_char(char c);
 extern bool piece_is_ok(Piece pc);
 extern bool piece_type_is_ok(PieceType pt);
+
+} // namespace Glaurung
 
 #endif // !defined(PIECE_H_INCLUDED)

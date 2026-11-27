@@ -24,6 +24,8 @@
 #include <cassert>
 #include <string>
 
+namespace Glaurung {
+
 ////
 //// Functions
 ////
@@ -79,3 +81,5 @@ bool square_is_ok(Square s)
 {
     return file_is_ok(square_file(s)) && rank_is_ok(square_rank(s));
 }
+
+} // namespace Glaurung

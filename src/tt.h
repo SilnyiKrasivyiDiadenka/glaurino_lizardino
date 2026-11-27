@@ -27,6 +27,8 @@
 #include "position.h"
 #include "value.h"
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -82,5 +84,7 @@ private:
 
 // Default transposition table size, in megabytes:
 const int TTDefaultSize = 32;
+
+} // namespace Glaurung
 
 #endif // !defined(TT_H_INCLUDED)

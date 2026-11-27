@@ -43,6 +43,8 @@
 
 #include "types.h"
 
+namespace Glaurung {
+
 /* Period parameters */
 #define N 624
 #define M 397
@@ -157,3 +159,5 @@ void init_mersenne(void)
     unsigned long init[4] = {0x123, 0x234, 0x345, 0x456}, length = 4;
     init_by_array(init, length);
 }
+
+} // namespace Glaurung

@@ -24,6 +24,8 @@
 #include "bitbase.h"
 #include <cassert>
 
+namespace Glaurung {
+
 ////
 //// Constants and variables
 ////
@@ -908,3 +910,5 @@ int probe_kpk(Square wksq, Square wpsq, Square bksq, Color stm)
 }
 
 } // namespace
+
+} // namespace Glaurung

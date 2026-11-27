@@ -32,6 +32,8 @@
 #include "square.h"
 #include "value.h"
 
+namespace Glaurung {
+
 ////
 //// Constants
 ////
@@ -816,5 +818,7 @@ inline bool Position::has_pawn_on_7th(Color c) const
 {
     return this->pawns(c) & relative_rank_bb(c, RANK_7);
 }
+
+} // namespace Glaurung
 
 #endif // !defined(POSITION_H_INCLUDED)

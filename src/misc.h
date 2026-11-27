@@ -29,6 +29,8 @@
 #include <string>
 #include <thread>
 
+namespace Glaurung {
+
 ////
 //// Constants
 ////
@@ -68,5 +70,7 @@ private:
 };
 
 extern InputReader input;
+
+} // namespace Glaurung
 
 #endif // !defined(MISC_H_INCLUDED)

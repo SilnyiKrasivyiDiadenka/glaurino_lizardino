@@ -27,6 +27,8 @@
 #include "scale.h"
 #include "value.h"
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -270,5 +272,7 @@ extern KPKPScalingFunction ScaleKPKPw, ScaleKPKPb;
 ////
 
 extern void init_bitbases();
+
+} // namespace Glaurung
 
 #endif // !defined(ENDGAME_H_INCLUDED)

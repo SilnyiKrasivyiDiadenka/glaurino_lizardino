@@ -24,6 +24,8 @@
 #include <cassert>
 #include <cstring>
 
+namespace Glaurung {
+
 ////
 //// Local definitions
 ////
@@ -335,3 +337,5 @@ PawnInfo *PawnInfoTable::get_pawn_info(const Position &pos)
 
     return pi;
 }
+
+} // namespace Glaurung

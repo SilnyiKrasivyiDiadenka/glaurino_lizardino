@@ -23,6 +23,8 @@
 #include "movegen.h"
 #include <cassert>
 
+namespace Glaurung {
+
 ////
 //// Local definitions
 ////
@@ -1197,3 +1199,5 @@ int generate_castle_moves(const Position &pos, MoveStack *mlist, Color us)
 }
 
 } // namespace
+
+} // namespace Glaurung

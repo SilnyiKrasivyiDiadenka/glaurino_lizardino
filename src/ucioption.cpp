@@ -28,6 +28,8 @@
 #include <sstream>
 #include <string>
 
+namespace Glaurung {
+
 ////
 //// Variables
 ////
@@ -290,3 +292,5 @@ Option *option_with_name(const std::string &optionName)
 }
 
 } // namespace
+
+} // namespace Glaurung

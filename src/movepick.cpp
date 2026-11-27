@@ -27,6 +27,8 @@
 #include "value.h"
 #include <cassert>
 
+namespace Glaurung {
+
 ////
 //// Local definitions
 ////
@@ -483,3 +485,5 @@ void MovePicker::init_phase_table()
     PhaseTable[i++] = PH_QCAPTURES;
     PhaseTable[i++] = PH_STOP;
 }
+
+} // namespace Glaurung

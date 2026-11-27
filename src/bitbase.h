@@ -25,10 +25,14 @@
 
 #include "types.h"
 
+namespace Glaurung {
+
 ////
 //// Prototypes
 ////
 
 extern void generate_kpk_bitbase(uint8_t bitbase[]);
+
+} // namespace Glaurung
 
 #endif // !defined(BITBASE_H_INCLUDED)

@@ -28,6 +28,8 @@
 #include <sstream>
 #include <string>
 
+namespace Glaurung {
+
 ////
 //// Local definitions
 ////
@@ -392,3 +394,5 @@ const std::string score_string(Value v)
 }
 
 } // namespace
+
+} // namespace Glaurung

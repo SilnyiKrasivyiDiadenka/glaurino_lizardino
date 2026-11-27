@@ -25,6 +25,8 @@
 
 #include <string>
 
+namespace Glaurung {
+
 ////
 //// Variables
 ////
@@ -43,5 +45,7 @@ extern const std::string get_option_value_string(const std::string &optionName);
 extern bool button_was_pressed(const std::string &buttonName);
 extern void set_option_value(const std::string &optionName, const std::string &newValue);
 extern void push_button(const std::string &buttonName);
+
+} // namespace Glaurung
 
 #endif // !defined(UCIOPTION_H_INCLUDED)

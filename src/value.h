@@ -25,6 +25,8 @@
 
 #include "piece.h"
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -208,5 +210,7 @@ extern Value value_from_tt(Value v, int ply);
 extern int value_to_centipawns(Value v);
 extern Value value_from_centipawns(int cp);
 extern const std::string value_to_string(Value v);
+
+} // namespace Glaurung
 
 #endif // !defined(VALUE_H_INCLUDED)

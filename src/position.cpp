@@ -30,6 +30,8 @@
 #include <cstring>
 #include <iostream>
 
+namespace Glaurung {
+
 ////
 //// Variables
 ////
@@ -2300,3 +2302,5 @@ bool Position::is_ok() const
 
     return true;
 }
+
+} // namespace Glaurung

@@ -25,6 +25,8 @@
 
 #include "position.h"
 
+namespace Glaurung {
+
 ////
 //// Prototypes
 ////
@@ -35,5 +37,7 @@ extern int generate_checks(const Position &pos, MoveStack *mlist, Bitboard dc);
 extern int generate_evasions(const Position &pos, MoveStack *mlist);
 extern int generate_legal_moves(const Position &pos, MoveStack *mlist);
 extern Move generate_move_if_legal(const Position &pos, Move m, Bitboard pinned);
+
+} // namespace Glaurung
 
 #endif // !defined(MOVEGEN_H_INCLUDED)

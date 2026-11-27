@@ -48,6 +48,8 @@ int main(int argc, char *argv[])
 
     // Initialization
 
+    using namespace Glaurung;
+
     init_mersenne();
     init_direction_table();
     init_bitboards();

@@ -31,6 +31,8 @@
 #include <iostream>
 #include <string>
 
+namespace Glaurung {
+
 ////
 //// Local definitions:
 ////
@@ -376,3 +378,5 @@ void go(UCIInputParser &uip)
 }
 
 } // namespace
+
+} // namespace Glaurung

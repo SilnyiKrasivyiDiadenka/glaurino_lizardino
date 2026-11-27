@@ -24,6 +24,8 @@
 #include <sstream>
 #include <string>
 
+namespace Glaurung {
+
 ////
 //// Functions
 ////
@@ -91,3 +93,5 @@ const std::string value_to_string(Value v)
     }
     return s.str();
 }
+
+} // namespace Glaurung

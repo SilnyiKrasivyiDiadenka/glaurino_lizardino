@@ -21,7 +21,11 @@
 
 #include <cstdint>
 
+namespace Glaurung {
+
 // Hash keys:
 typedef std::uint64_t Key;
+
+} // namespace Glaurung
 
 #endif // !defined(TYPES_H_INCLUDED)

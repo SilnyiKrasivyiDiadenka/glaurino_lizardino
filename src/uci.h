@@ -19,10 +19,14 @@
 #if !defined(UCI_H_INCLUDED)
 #define UCI_H_INCLUDED
 
+namespace Glaurung {
+
 ////
 //// Prototypes
 ////
 
 extern void uci_main_loop();
+
+} // namespace Glaurung
 
 #endif // !defined(UCI_H_INCLUDED)

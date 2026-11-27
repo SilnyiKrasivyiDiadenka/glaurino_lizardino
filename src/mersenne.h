@@ -25,6 +25,8 @@
 
 #include "types.h"
 
+namespace Glaurung {
+
 ////
 //// Prototypes
 ////
@@ -32,5 +34,7 @@
 extern uint32_t genrand_int32(void);
 extern uint64_t genrand_int64(void);
 extern void init_mersenne(void);
+
+} // namespace Glaurung
 
 #endif // !defined(MERSENNE_H_INCLUDED)

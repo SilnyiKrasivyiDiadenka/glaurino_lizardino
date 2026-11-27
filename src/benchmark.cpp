@@ -25,6 +25,8 @@
 #include "thread.h"
 #include "ucioption.h"
 
+namespace Glaurung {
+
 ////
 //// Variables
 ////
@@ -84,3 +86,5 @@ void benchmark(const std::string &ttSize, const std::string &threads)
         think(pos, true, false, 0, 0, 0, 0, 0, 60000, moves);
     }
 }
+
+} // namespace Glaurung

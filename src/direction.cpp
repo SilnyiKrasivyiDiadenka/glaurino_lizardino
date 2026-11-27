@@ -23,6 +23,8 @@
 #include "direction.h"
 #include "square.h"
 
+namespace Glaurung {
+
 ////
 //// Variables
 ////
@@ -59,3 +61,5 @@ void init_direction_table()
             }
         }
 }
+
+} // namespace Glaurung

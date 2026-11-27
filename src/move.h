@@ -28,6 +28,8 @@
 #include "square.h"
 #include <iostream>
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -109,5 +111,7 @@ extern std::ostream &operator<<(std::ostream &os, Move m);
 extern Move move_from_string(const Position &pos, const std::string &str);
 extern const std::string move_to_string(Move m);
 extern bool move_is_ok(Move m);
+
+} // namespace Glaurung
 
 #endif // !defined(MOVE_H_INCLUDED)

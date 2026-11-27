@@ -22,6 +22,8 @@
 
 #include "color.h"
 
+namespace Glaurung {
+
 ////
 //// Functions
 ////
@@ -32,3 +34,5 @@ bool color_is_ok(Color c)
 {
     return c == WHITE || c == BLACK;
 }
+
+} // namespace Glaurung

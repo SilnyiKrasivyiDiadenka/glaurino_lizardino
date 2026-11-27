@@ -20,6 +20,16 @@
 #define BITBOARD_H_INCLUDED
 
 ////
+//// Includes
+////
+
+#include "direction.h"
+#include "piece.h"
+#include "square.h"
+
+namespace Glaurung {
+
+////
 //// Defines
 ////
 
@@ -30,14 +40,6 @@
 #define BITCOUNT_SWAR_64
 //#define BITCOUNT_SWAR_32
 //#define BITCOUNT_LOOP
-
-////
-//// Includes
-////
-
-#include "direction.h"
-#include "piece.h"
-#include "square.h"
 
 ////
 //// Types
@@ -428,5 +430,7 @@ extern void print_bitboard(Bitboard b);
 extern void init_bitboards();
 extern Square first_1(Bitboard b);
 extern Square pop_1st_bit(Bitboard *b);
+
+} // namespace Glaurung
 
 #endif // !defined(BITBOARD_H_INCLUDED)

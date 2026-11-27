@@ -23,6 +23,8 @@
 #include "piece.h"
 #include <cstring>
 
+namespace Glaurung {
+
 ////
 //// Constants and variables
 ////
@@ -95,3 +97,5 @@ bool piece_type_is_ok(PieceType pc)
 {
     return pc >= PAWN && pc <= KING;
 }
+
+} // namespace Glaurung

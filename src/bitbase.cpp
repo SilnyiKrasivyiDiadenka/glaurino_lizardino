@@ -25,6 +25,8 @@
 #include "square.h"
 #include <cassert>
 
+namespace Glaurung {
+
 ////
 //// Local definitions
 ////
@@ -329,3 +331,5 @@ int compress_result(Result r)
 }
 
 } // namespace
+
+} // namespace Glaurung

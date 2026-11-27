@@ -23,6 +23,7 @@
 //// Includes
 ////
 
+namespace Glaurung {
 
 ////
 //// Types
@@ -53,5 +54,7 @@ inline Color opposite_color(Color c)
 ////
 
 extern bool color_is_ok(Color c);
+
+} // namespace Glaurung
 
 #endif // !defined(COLOR_H_INCLUDED)

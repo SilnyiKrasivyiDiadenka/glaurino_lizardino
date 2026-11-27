@@ -19,6 +19,8 @@
 #if !defined(DEPTH_H_INCLUDED)
 #define DEPTH_H_INCLUDED
 
+namespace Glaurung {
+
 ////
 //// Types
 ////
@@ -89,5 +91,7 @@ inline void operator/=(Depth &d, int i)
 {
     d = Depth(int(d) / i);
 }
+
+} // namespace Glaurung
 
 #endif // !defined(DEPTH_H_INCLUDED)

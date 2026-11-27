@@ -28,6 +28,8 @@
 #include "value.h"
 #include <string>
 
+namespace Glaurung {
+
 ////
 //// Prototypes
 ////
@@ -40,5 +42,7 @@ extern const std::string line_to_san(const Position &pos,
                                      bool breakLines);
 extern const std::string pretty_pv(
     const Position &pos, int time, int depth, uint64_t nodes, Value score, Move pv[]);
+
+} // namespace Glaurung
 
 #endif // !defined(SAN_H_INCLUDED)
