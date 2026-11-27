@@ -31,13 +31,11 @@
 #include "tt.h"
 #include "ucioption.h"
 #include <cassert>
+#include <condition_variable>
 #include <cstring>
 #include <fstream>
 #include <iostream>
-
-#if !defined(_MSC_VER)
-#include <pthread.h>
-#endif
+#include <thread>
 
 ////
 //// Local definitions
@@ -207,12 +205,8 @@ const int MaxActiveSplitPoints = 8;
 SplitPoint SplitPointStack[THREAD_MAX][MaxActiveSplitPoints];
 bool Idle = true;
 
-#if !defined(_MSC_VER)
-pthread_cond_t WaitCond;
-pthread_mutex_t WaitLock;
-#else
-HANDLE SitIdleEvent[THREAD_MAX];
-#endif
+std::condition_variable WaitCond;
+std::mutex WaitLock;
 
 /// Functions
 
@@ -268,12 +262,6 @@ bool split(const Position &pos,
            int master,
            bool pvNode);
 void wake_sleeping_threads();
-
-#if !defined(_MSC_VER)
-void *init_thread(void *threadID);
-#else
-DWORD WINAPI init_thread(LPVOID threadID);
-#endif
 
 } // namespace
 
@@ -474,22 +462,11 @@ void think(const Position &pos,
 void init_threads()
 {
     volatile int i;
-#if !defined(_MSC_VER)
-    pthread_t pthread[1];
-#endif
 
     for (i = 0; i < THREAD_MAX; i++)
         Threads[i].activeSplitPoints = 0;
 
     init_split_point_stack();
-
-#if !defined(_MSC_VER)
-    pthread_mutex_init(&WaitLock, NULL);
-    pthread_cond_init(&WaitCond, NULL);
-#else
-    for (i = 0; i < THREAD_MAX; i++)
-        SitIdleEvent[i] = CreateEvent(0, FALSE, FALSE, 0);
-#endif
 
     // All threads except the main thread should be initialized to idle state:
     for (i = 1; i < THREAD_MAX; i++) {
@@ -501,14 +478,7 @@ void init_threads()
 
     // Launch the helper threads:
     for (i = 1; i < THREAD_MAX; i++) {
-#if !defined(_MSC_VER)
-        pthread_create(pthread, NULL, init_thread, (void *) (&i));
-#else
-        {
-            DWORD iID[1];
-            CreateThread(NULL, 0, init_thread, (LPVOID) (&i), 0, iID);
-        }
-#endif
+        Threads[i].worker = std::jthread(idle_loop, i, nullptr);
 
         // Wait until the thread has finished launching:
         while (!Threads[i].running)
@@ -1373,7 +1343,7 @@ void sp_search(SplitPoint *sp, int threadID)
     bool useFutilityPruning = UseFutilityPruning && sp->depth < SelectiveDepth && !isCheck;
 
     while (sp->bestValue < sp->beta && !thread_should_stop(threadID)
-           && (move = sp->mp->get_next_move(sp->lock)) != MOVE_NONE) {
+           && (move = sp->mp->get_next_move(sp->mtx)) != MOVE_NONE) {
         UndoInfo u;
         Depth ext, newDepth;
         bool moveIsCheck = pos.move_is_check(move, sp->dcCandidates);
@@ -1382,10 +1352,10 @@ void sp_search(SplitPoint *sp, int threadID)
 
         assert(move_is_ok(move));
 
-        sp->lock.lock();
+        sp->mtx.lock();
         sp->moves++;
         moveCount = sp->moves;
-        sp->lock.unlock();
+        sp->mtx.unlock();
 
         ss[sp->ply].currentMove = move;
 
@@ -1420,7 +1390,7 @@ void sp_search(SplitPoint *sp, int threadID)
             break;
 
         // New best move?
-        sp->lock.lock();
+        sp->mtx.lock();
         if (value > sp->bestValue && !thread_should_stop(threadID)) {
             sp->bestValue = value;
             if (sp->bestValue >= sp->beta) {
@@ -1431,10 +1401,10 @@ void sp_search(SplitPoint *sp, int threadID)
                 sp->finished = true;
             }
         }
-        sp->lock.unlock();
+        sp->mtx.unlock();
     }
 
-    sp->lock.lock();
+    sp->mtx.lock();
 
     // If this is the master thread and we have been asked to stop because of
     // a beta cutoff higher up in the tree, stop all slave threads:
@@ -1446,7 +1416,7 @@ void sp_search(SplitPoint *sp, int threadID)
     sp->cpus--;
     sp->slaves[threadID] = 0;
 
-    sp->lock.unlock();
+    sp->mtx.unlock();
 }
 
 // sp_search_pv() is used to search from a PV split point.  This function
@@ -1469,7 +1439,7 @@ void sp_search_pv(SplitPoint *sp, int threadID)
     int moveCount = sp->moves;
 
     while (sp->alpha < sp->beta && !thread_should_stop(threadID)
-           && (move = sp->mp->get_next_move(sp->lock)) != MOVE_NONE) {
+           && (move = sp->mp->get_next_move(sp->mtx)) != MOVE_NONE) {
         UndoInfo u;
         Depth ext, newDepth;
         bool moveIsCheck = pos.move_is_check(move, sp->dcCandidates);
@@ -1482,10 +1452,10 @@ void sp_search_pv(SplitPoint *sp, int threadID)
                                                   ? PawnValueMidgame
                                                   : pos.midgame_value_of_piece_on(move_to(move));
 
-        sp->lock.lock();
+        sp->mtx.lock();
         sp->moves++;
         moveCount = sp->moves;
-        sp->lock.unlock();
+        sp->mtx.unlock();
 
         ss[sp->ply].currentMove = move;
 
@@ -1525,7 +1495,7 @@ void sp_search_pv(SplitPoint *sp, int threadID)
             break;
 
         // New best move?
-        sp->lock.lock();
+        sp->mtx.lock();
         if (value > sp->bestValue && !thread_should_stop(threadID)) {
             sp->bestValue = value;
             if (value > sp->alpha) {
@@ -1546,10 +1516,10 @@ void sp_search_pv(SplitPoint *sp, int threadID)
             if (Iteration >= 2 && -value <= ValueByIteration[Iteration - 1] - ProblemMargin)
                 Problem = true;
         }
-        sp->lock.unlock();
+        sp->mtx.unlock();
     }
 
-    sp->lock.lock();
+    sp->mtx.lock();
 
     // If this is the master thread and we have been asked to stop because of
     // a beta cutoff higher up in the tree, stop all slave threads:
@@ -1561,7 +1531,7 @@ void sp_search_pv(SplitPoint *sp, int threadID)
     sp->cpus--;
     sp->slaves[threadID] = 0;
 
-    sp->lock.unlock();
+    sp->mtx.unlock();
 }
 
 /// The RootMove class
@@ -2142,15 +2112,9 @@ void idle_loop(int threadID, SplitPoint *waitSp)
 
         // If we are not thinking, wait for a condition to be signaled instead
         // of wasting CPU time polling for work:
-        while (threadID != 0 && (Idle || threadID >= ActiveThreads)) {
-#if !defined(_MSC_VER)
-            pthread_mutex_lock(&WaitLock);
-            if (Idle || threadID >= ActiveThreads)
-                pthread_cond_wait(&WaitCond, &WaitLock);
-            pthread_mutex_unlock(&WaitLock);
-#else
-            WaitForSingleObject(SitIdleEvent[threadID], INFINITE);
-#endif
+        if (threadID != 0) {
+            std::unique_lock lock(WaitLock);
+            WaitCond.wait(lock, [&threadID] { return !(Idle || threadID >= ActiveThreads); });
         }
 
         // If this thread has been assigned work, launch a search:
@@ -2386,42 +2350,13 @@ bool split(const Position &p,
 void wake_sleeping_threads()
 {
     if (ActiveThreads > 1) {
+        std::lock_guard lock(WaitLock);
         for (int i = 1; i < ActiveThreads; i++) {
             Threads[i].idle = true;
             Threads[i].workIsWaiting = false;
         }
-#if !defined(_MSC_VER)
-        pthread_mutex_lock(&WaitLock);
-        pthread_cond_broadcast(&WaitCond);
-        pthread_mutex_unlock(&WaitLock);
-#else
-        for (int i = 1; i < THREAD_MAX; i++)
-            SetEvent(SitIdleEvent[i]);
-#endif
+        WaitCond.notify_all();
     }
 }
-
-// init_thread() is the function which is called when a new thread is
-// launched.  It simply calls the idle_loop() function with the supplied
-// threadID.  There are two versions of this function; one for POSIX threads
-// and one for Windows threads.
-
-#if !defined(_MSC_VER)
-
-void *init_thread(void *threadID)
-{
-    idle_loop(*(int *) threadID, NULL);
-    return NULL;
-}
-
-#else
-
-DWORD WINAPI init_thread(LPVOID threadID)
-{
-    idle_loop(*(int *) threadID, NULL);
-    return NULL;
-}
-
-#endif
 
 } // namespace

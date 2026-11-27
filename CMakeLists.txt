@@ -73,9 +73,6 @@ add_executable(
   src/value.h
   src/value.cpp)
 
-find_package(Threads REQUIRED)
-target_link_libraries(glaurino_lizardino PRIVATE Threads::Threads)
-
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
   if(MINGW OR WIN32)
     target_link_options(glaurino_lizardino PRIVATE $<$<CONFIG:Release>:-static>)

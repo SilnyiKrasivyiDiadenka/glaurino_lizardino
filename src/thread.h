@@ -46,29 +46,29 @@ struct SplitPoint
     SearchStack *parentSstack;
     int ply;
     Depth depth;
-    volatile Value alpha, beta, bestValue;
+    std::atomic<Value> alpha, beta, bestValue;
     bool pvNode;
     Bitboard dcCandidates;
     int master, slaves[THREAD_MAX];
-    std::mutex lock;
+    std::mutex mtx;
     MovePicker *mp;
-    volatile int moves;
-    volatile int cpus;
-    bool finished;
+    std::atomic<int> moves;
+    std::atomic<int> cpus;
+    std::atomic<bool> finished;
 };
 
-struct Thread
+struct alignas(64) Thread
 {
+    std::jthread worker;
     SplitPoint *splitPoint;
-    int activeSplitPoints;
-    uint64_t nodes;
-    bool failHighPly1;
-    volatile bool stop;
-    volatile bool running;
-    volatile bool idle;
-    volatile bool workIsWaiting;
-    volatile bool printCurrentLine;
-    unsigned char pad[64];
+    std::atomic<int> activeSplitPoints;
+    std::atomic<std::uint64_t> nodes;
+    std::atomic<bool> failHighPly1;
+    std::atomic<bool> stop;
+    std::atomic<bool> running;
+    std::atomic<bool> idle;
+    std::atomic<bool> workIsWaiting;
+    std::atomic<bool> printCurrentLine;
 };
 
 #endif // !defined(THREAD_H_INCLUDED)

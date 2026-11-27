@@ -194,11 +194,11 @@ Move MovePicker::get_next_move()
 /// A variant of get_next_move() which takes a lock as a parameter, used to
 /// prevent multiple threads from picking the same move at a split point.
 
-Move MovePicker::get_next_move(std::mutex &lock)
+Move MovePicker::get_next_move(std::mutex &mtx)
 {
     Move m;
 
-    std::unique_lock<std::mutex> unique_lock(lock);
+    std::lock_guard<std::mutex> lock(mtx);
     if (finished) {
         return MOVE_NONE;
     }
