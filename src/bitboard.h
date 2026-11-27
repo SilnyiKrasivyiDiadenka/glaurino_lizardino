@@ -37,10 +37,6 @@ namespace Glaurung {
 //#define USE_32BIT_ATTACKS
 #define USE_FOLDED_BITSCAN
 
-#define BITCOUNT_SWAR_64
-//#define BITCOUNT_SWAR_32
-//#define BITCOUNT_LOOP
-
 ////
 //// Types
 ////
@@ -357,70 +353,6 @@ inline Bitboard isolated_pawn_mask(Square s)
 {
     return neighboring_files_bb(s);
 }
-
-/// count_1s() counts the number of nonzero bits in a bitboard.
-
-#if defined(BITCOUNT_LOOP)
-
-inline int count_1s(Bitboard b)
-{
-    int r;
-    for (r = 0; b; r++, b &= b - 1)
-        ;
-    return r;
-}
-
-inline int count_1s_max_15(Bitboard b)
-{
-    return count_1s(b);
-}
-
-#elif defined(BITCOUNT_SWAR_32)
-
-inline int count_1s(Bitboard b)
-{
-    unsigned w = unsigned(b >> 32), v = unsigned(b);
-    v = v - ((v >> 1) & 0x55555555);
-    w = w - ((w >> 1) & 0x55555555);
-    v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
-    w = (w & 0x33333333) + ((w >> 2) & 0x33333333);
-    v = (v + (v >> 4)) & 0x0F0F0F0F;
-    w = (w + (w >> 4)) & 0x0F0F0F0F;
-    v = ((v + w) * 0x01010101) >> 24; // mul is fast on amd procs
-    return int(v);
-}
-
-inline int count_1s_max_15(Bitboard b)
-{
-    unsigned w = unsigned(b >> 32), v = unsigned(b);
-    v = v - ((v >> 1) & 0x55555555);
-    w = w - ((w >> 1) & 0x55555555);
-    v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
-    w = (w & 0x33333333) + ((w >> 2) & 0x33333333);
-    v = ((v + w) * 0x11111111) >> 28;
-    return int(v);
-}
-
-#elif defined(BITCOUNT_SWAR_64)
-
-inline int count_1s(Bitboard b)
-{
-    b -= ((b >> 1) & 0x5555555555555555ULL);
-    b = ((b >> 2) & 0x3333333333333333ULL) + (b & 0x3333333333333333ULL);
-    b = ((b >> 4) + b) & 0x0F0F0F0F0F0F0F0FULL;
-    b *= 0x0101010101010101ULL;
-    return int(b >> 56);
-}
-
-inline int count_1s_max_15(Bitboard b)
-{
-    b -= (b >> 1) & 0x5555555555555555ULL;
-    b = ((b >> 2) & 0x3333333333333333ULL) + (b & 0x3333333333333333ULL);
-    b *= 0x1111111111111111ULL;
-    return int(b >> 60);
-}
-
-#endif // BITCOUNT
 
 ////
 //// Prototypes

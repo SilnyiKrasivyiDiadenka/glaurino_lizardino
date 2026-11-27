@@ -21,6 +21,7 @@
 ////
 
 #include "pawns.h"
+#include "glaurino_lizardino/popcount/popcountfactory.h"
 #include <cassert>
 #include <cstring>
 
@@ -33,6 +34,8 @@ namespace Glaurung {
 namespace {
 
 /// Constants and variables
+
+auto bitCounter = PopCountFactory::Create();
 
 // Doubled pawn penalty by file, middle game.
 const Value DoubledPawnMidgamePenalty[8]
@@ -277,10 +280,11 @@ PawnInfo *PawnInfoTable::get_pawn_info(const Position &pos)
 
             // Test for candidate passed pawn.
             candidate = (!passed && pos.file_is_half_open(them, f)
-                         && count_1s_max_15(neighboring_files_bb(f)
-                                            & (in_front_bb(them, r) | rank_bb(r)) & ourPawns)
-                                    - count_1s_max_15(neighboring_files_bb(f) & in_front_bb(us, r)
-                                                      & theirPawns)
+                         && bitCounter->count_1s_max_15(neighboring_files_bb(f)
+                                                        & (in_front_bb(them, r) | rank_bb(r))
+                                                        & ourPawns)
+                                    - bitCounter->count_1s_max_15(neighboring_files_bb(f)
+                                                                  & in_front_bb(us, r) & theirPawns)
                                 >= 0);
 
             // In order to prevent doubled passed pawns from receiving a too big

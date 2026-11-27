@@ -22,6 +22,7 @@
 
 #include "endgame.h"
 #include "bitbase.h"
+#include "glaurino_lizardino/popcount/popcountfactory.h"
 #include <cassert>
 
 namespace Glaurung {
@@ -29,6 +30,10 @@ namespace Glaurung {
 ////
 //// Constants and variables
 ////
+
+namespace {
+auto bitCounter = PopCountFactory::Create();
+}
 
 /// Evaluation functions
 
@@ -459,7 +464,7 @@ Value KBBKNEvaluationFunction::apply(const Position &pos)
     result += Value(square_distance(bksq, nsq) * 32);
 
     // Bonus for restricting the knight's mobility:
-    result += Value((8 - count_1s_max_15(pos.knight_attacks(nsq))) * 8);
+    result += Value((8 - bitCounter->count_1s_max_15(pos.knight_attacks(nsq))) * 8);
 
     return (strongerSide == pos.side_to_move()) ? result : -result;
 }

@@ -71,7 +71,14 @@ add_executable(
   src/ucioption.h
   src/ucioption.cpp
   src/value.h
-  src/value.cpp)
+  src/value.cpp
+  src/glaurino_lizardino/popcount/ipopcount.h
+  src/glaurino_lizardino/popcount/popcountfactory.h
+  src/glaurino_lizardino/popcount/popcountfactory.cpp
+  src/glaurino_lizardino/popcount/impl/popcountloop.hpp
+  src/glaurino_lizardino/popcount/impl/popcountstd.hpp
+  src/glaurino_lizardino/popcount/impl/popcountswar32.hpp
+  src/glaurino_lizardino/popcount/impl/popcountswar64.hpp)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
   if(MINGW OR WIN32)

@@ -22,6 +22,7 @@
 
 #include "bitboard.h"
 #include "direction.h"
+#include "glaurino_lizardino/popcount/popcountfactory.h"
 #include <cstdlib>
 #include <iostream>
 
@@ -30,6 +31,10 @@ namespace Glaurung {
 ////
 //// Constants and variables
 ////
+
+namespace {
+auto bitCounter = PopCountFactory::Create();
+}
 
 const Bitboard SquaresByColorBB[2] = {BlackSquaresBB, WhiteSquaresBB};
 
@@ -431,7 +436,7 @@ void init_between_bitboards()
 
 Bitboard index_to_bitboard(int index, Bitboard mask)
 {
-    int i, j, bits = count_1s(mask);
+    int i, j, bits = bitCounter->count_1s(mask);
     Bitboard result = 0ULL;
     for (i = 0; i < bits; i++) {
         j = pop_1st_bit(&mask);

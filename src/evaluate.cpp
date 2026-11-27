@@ -21,6 +21,7 @@
 ////
 
 #include "evaluate.h"
+#include "glaurino_lizardino/popcount/popcountfactory.h"
 #include "material.h"
 #include "pawns.h"
 #include "scale.h"
@@ -36,6 +37,8 @@ namespace Glaurung {
 ////
 
 namespace {
+
+auto bitCounter = PopCountFactory::Create();
 
 const int Sign[2] = {1, -1};
 
@@ -373,11 +376,13 @@ Value evaluate(const Position &pos, EvalInfo &ei, int threadID)
     // Initialize pawn attack bitboards for both sides:
     ei.attackedBy[WHITE][PAWN] = ((pos.pawns(WHITE) << 9) & ~FileABB)
                                  | ((pos.pawns(WHITE) << 7) & ~FileHBB);
-    ei.attackCount[WHITE] += count_1s_max_15(ei.attackedBy[WHITE][PAWN] & ei.attackedBy[BLACK][KING])
+    ei.attackCount[WHITE] += bitCounter->count_1s_max_15(ei.attackedBy[WHITE][PAWN]
+                                                         & ei.attackedBy[BLACK][KING])
                              / 2;
     ei.attackedBy[BLACK][PAWN] = ((pos.pawns(BLACK) >> 7) & ~FileABB)
                                  | ((pos.pawns(BLACK) >> 9) & ~FileHBB);
-    ei.attackCount[BLACK] += count_1s_max_15(ei.attackedBy[BLACK][PAWN] & ei.attackedBy[WHITE][KING])
+    ei.attackCount[BLACK] += bitCounter->count_1s_max_15(ei.attackedBy[BLACK][PAWN]
+                                                         & ei.attackedBy[WHITE][KING])
                              / 2;
 
     // Evaluate pieces:
@@ -541,7 +546,7 @@ void init_eval(int threads)
     }
 
     for (Bitboard b = 0ULL; b < 256ULL; b++)
-        BitCount8Bit[b] = count_1s(b);
+        BitCount8Bit[b] = bitCounter->count_1s(b);
 }
 
 /// quit_eval() releases heap-allocated memory at program termination.
@@ -599,11 +604,11 @@ void evaluate_knight(const Position &p, Square s, Color us, EvalInfo &ei)
         ei.attackWeight[us] += KnightAttackWeight;
         Bitboard bb = (b & ei.attackedBy[them][KING]);
         if (bb)
-            ei.attacked[us] += count_1s_max_15(bb);
+            ei.attacked[us] += bitCounter->count_1s_max_15(bb);
     }
 
     // Mobility
-    int mob = count_1s_max_15(b & ~p.pieces_of_color(us));
+    int mob = bitCounter->count_1s_max_15(b & ~p.pieces_of_color(us));
     ei.mgMobility += Sign[us] * MidgameKnightMobilityBonus[mob];
     ei.egMobility += Sign[us] * EndgameKnightMobilityBonus[mob];
 
@@ -645,11 +650,11 @@ void evaluate_bishop(const Position &p, Square s, Color us, EvalInfo &ei)
         ei.attackWeight[us] += BishopAttackWeight;
         Bitboard bb = (b & ei.attackedBy[them][KING]);
         if (bb)
-            ei.attacked[us] += count_1s_max_15(bb);
+            ei.attacked[us] += bitCounter->count_1s_max_15(bb);
     }
 
     // Mobility:
-    int mob = count_1s_max_15(b & ~p.pieces_of_color(us));
+    int mob = bitCounter->count_1s_max_15(b & ~p.pieces_of_color(us));
     ei.mgMobility += Sign[us] * MidgameBishopMobilityBonus[mob];
     ei.egMobility += Sign[us] * EndgameBishopMobilityBonus[mob];
 
@@ -709,11 +714,11 @@ void evaluate_rook(const Position &p, Square s, Color us, EvalInfo &ei)
         ei.attackWeight[us] += RookAttackWeight;
         Bitboard bb = (b & ei.attackedBy[them][KING]);
         if (bb)
-            ei.attacked[us] += count_1s_max_15(bb);
+            ei.attacked[us] += bitCounter->count_1s_max_15(bb);
     }
 
     // Mobility
-    int mob = count_1s_max_15(b & ~p.pieces_of_color(us));
+    int mob = bitCounter->count_1s_max_15(b & ~p.pieces_of_color(us));
     ei.mgMobility += Sign[us] * MidgameRookMobilityBonus[mob];
     ei.egMobility += Sign[us] * EndgameRookMobilityBonus[mob];
 
@@ -763,11 +768,11 @@ void evaluate_queen(const Position &p, Square s, Color us, EvalInfo &ei)
         ei.attackWeight[us] += QueenAttackWeight;
         Bitboard bb = (b & ei.attackedBy[them][KING]);
         if (bb)
-            ei.attacked[us] += count_1s_max_15(bb);
+            ei.attacked[us] += bitCounter->count_1s_max_15(bb);
     }
 
     // Mobility
-    int mob = count_1s(b & ~p.pieces_of_color(us));
+    int mob = bitCounter->count_1s(b & ~p.pieces_of_color(us));
     ei.mgMobility += Sign[us] * MidgameQueenMobilityBonus[mob];
     ei.egMobility += Sign[us] * EndgameQueenMobilityBonus[mob];
 }
@@ -810,7 +815,7 @@ void evaluate_king(const Position &p, Square s, Color us, EvalInfo &ei)
         // undefended squares around the king, the square of the king, and the
         // quality of the pawn shelter.
         int attackUnits = std::min((ei.attackCount[them] * ei.attackWeight[them]) / 2, 25)
-                          + (ei.attacked[them] + count_1s_max_15(undefended)) * 3
+                          + (ei.attacked[them] + bitCounter->count_1s_max_15(undefended)) * 3
                           + InitKingDanger[relative_square(us, s)] - (shelter >> 5);
 
         // Analyse safe queen contact checks:
@@ -822,7 +827,7 @@ void evaluate_king(const Position &p, Square s, Color us, EvalInfo &ei)
             if (b) {
                 // The bitboard b now contains the squares available for safe queen
                 // contact checks.
-                int count = count_1s_max_15(b);
+                int count = bitCounter->count_1s_max_15(b);
                 attackUnits += QueenContactCheckBonus * count * (sente ? 2 : 1);
 
                 // Is there a mate threat?
@@ -857,31 +862,31 @@ void evaluate_king(const Position &p, Square s, Color us, EvalInfo &ei)
             // Queen checks
             b2 = b & ei.attacked_by(them, QUEEN);
             if (b2)
-                attackUnits += QueenCheckBonus * count_1s_max_15(b2);
+                attackUnits += QueenCheckBonus * bitCounter->count_1s_max_15(b2);
 
             // Rook checks
             b2 = b & ei.attacked_by(them, ROOK);
             if (b2)
-                attackUnits += RookCheckBonus * count_1s_max_15(b2);
+                attackUnits += RookCheckBonus * bitCounter->count_1s_max_15(b2);
         }
         if (QueenCheckBonus > 0 || BishopCheckBonus > 0) {
             b = p.bishop_attacks(s) & ~p.pieces_of_color(them) & ~ei.attacked_by(us);
             // Queen checks
             b2 = b & ei.attacked_by(them, QUEEN);
             if (b2)
-                attackUnits += QueenCheckBonus * count_1s_max_15(b2);
+                attackUnits += QueenCheckBonus * bitCounter->count_1s_max_15(b2);
 
             // Bishop checks
             b2 = b & ei.attacked_by(them, BISHOP);
             if (b2)
-                attackUnits += BishopCheckBonus * count_1s_max_15(b2);
+                attackUnits += BishopCheckBonus * bitCounter->count_1s_max_15(b2);
         }
         if (KnightCheckBonus > 0) {
             b = p.knight_attacks(s) & ~p.pieces_of_color(them) & ~ei.attacked_by(us);
             // Knight checks
             b2 = b & ei.attacked_by(them, KNIGHT);
             if (b2)
-                attackUnits += KnightCheckBonus * count_1s_max_15(b2);
+                attackUnits += KnightCheckBonus * bitCounter->count_1s_max_15(b2);
         }
 
         // Analyse discovered checks (only for non-pawns right now, consider
@@ -889,7 +894,8 @@ void evaluate_king(const Position &p, Square s, Color us, EvalInfo &ei)
         if (DiscoveredCheckBonus) {
             b = p.discovered_check_candidates(them) & ~p.pawns();
             if (b)
-                attackUnits += DiscoveredCheckBonus * count_1s_max_15(b) * (sente ? 2 : 1);
+                attackUnits += DiscoveredCheckBonus * bitCounter->count_1s_max_15(b)
+                               * (sente ? 2 : 1);
         }
 
         // Has a mate threat been found?  We don't do anything here if the
@@ -1007,8 +1013,8 @@ void evaluate_passed_pawns(const Position &pos, EvalInfo &ei)
 
                 if (d < 0) {
                     int mtg = RANK_8 - pawn_rank(us, s);
-                    int blockerCount = count_1s_max_15(squares_in_front_of(us, s)
-                                                       & pos.occupied_squares());
+                    int blockerCount = bitCounter->count_1s_max_15(squares_in_front_of(us, s)
+                                                                   & pos.occupied_squares());
                     mtg += blockerCount;
                     d += blockerCount;
                     if (d < 0) {
@@ -1158,7 +1164,8 @@ void evaluate_space(const Position &pos, Color us, EvalInfo &ei)
         behindFriendlyPawns |= (behindFriendlyPawns << 16);
     }
 
-    int space = count_1s_max_15(safeSquares) + count_1s_max_15(behindFriendlyPawns & safeSquares);
+    int space = bitCounter->count_1s_max_15(safeSquares)
+                + bitCounter->count_1s_max_15(behindFriendlyPawns & safeSquares);
 
     ei.mgValue += Sign[us] * apply_weight(Value(space * ei.mi->space_weight()), WeightSpace);
 }

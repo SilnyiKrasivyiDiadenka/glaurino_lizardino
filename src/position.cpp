@@ -21,6 +21,7 @@
 ////
 
 #include "position.h"
+#include "glaurino_lizardino/popcount/popcountfactory.h"
 #include "mersenne.h"
 #include "movegen.h"
 #include "movepick.h"
@@ -35,6 +36,10 @@ namespace Glaurung {
 ////
 //// Variables
 ////
+
+namespace {
+auto bitCounter = PopCountFactory::Create();
+}
 
 int Position::castleRightsMask[64];
 
@@ -2224,7 +2229,7 @@ bool Position::is_ok() const
     }
 
     // Is there more than 2 checkers?
-    if (debugCheckerCount && count_1s(checkersBB) > 2)
+    if (debugCheckerCount && bitCounter->count_1s(checkersBB) > 2)
         return false;
 
     // Bitboards OK?
@@ -2286,7 +2291,7 @@ bool Position::is_ok() const
     if (debugPieceCounts)
         for (Color c = WHITE; c <= BLACK; c++)
             for (PieceType pt = PAWN; pt <= KING; pt++)
-                if (pieceCount[c][pt] != count_1s(this->pieces_of_color_and_type(c, pt)))
+                if (pieceCount[c][pt] != bitCounter->count_1s(this->pieces_of_color_and_type(c, pt)))
                     return false;
 
     if (debugPieceList) {
