@@ -38,13 +38,12 @@ enum ValueType {
     VALUE_TYPE_EXACT = 3  // Exact score
 };
 
-enum Value : int {
-    VALUE_DRAW = 0,
-    VALUE_KNOWN_WIN = 15000,
-    VALUE_MATE = 30000,
-    VALUE_INFINITE = 30001,
-    VALUE_NONE = 30002
-};
+typedef std::int32_t Value;
+inline constexpr std::int32_t VALUE_DRAW = 0;
+inline constexpr std::int32_t VALUE_KNOWN_WIN = 15000;
+inline constexpr std::int32_t VALUE_MATE = 30000;
+inline constexpr std::int32_t VALUE_INFINITE = 30001;
+inline constexpr std::int32_t VALUE_NONE = 30002;
 
 ////
 //// Constants and variables
@@ -111,55 +110,6 @@ const Value TempoValueEndgame = Value(20);
 ////
 //// Inline functions
 ////
-
-inline Value operator+(Value v, int i)
-{
-    return Value(int(v) + i);
-}
-inline Value operator+(Value v1, Value v2)
-{
-    return Value(int(v1) + int(v2));
-}
-inline void operator+=(Value &v1, Value v2)
-{
-    v1 = Value(int(v1) + int(v2));
-}
-inline Value operator-(Value v, int i)
-{
-    return Value(int(v) - i);
-}
-inline Value operator-(Value v)
-{
-    return Value(-int(v));
-}
-inline Value operator-(Value v1, Value v2)
-{
-    return Value(int(v1) - int(v2));
-}
-inline void operator-=(Value &v1, Value v2)
-{
-    v1 = Value(int(v1) - int(v2));
-}
-inline Value operator*(Value v, int i)
-{
-    return Value(int(v) * i);
-}
-inline void operator*=(Value &v, int i)
-{
-    v = Value(int(v) * i);
-}
-inline Value operator*(int i, Value v)
-{
-    return Value(int(v) * i);
-}
-inline Value operator/(Value v, int i)
-{
-    return Value(int(v) / i);
-}
-inline void operator/=(Value &v, int i)
-{
-    v = Value(int(v) / i);
-}
 
 inline Value value_mate_in(int ply)
 {
