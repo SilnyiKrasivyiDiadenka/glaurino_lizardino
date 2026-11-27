@@ -27,7 +27,7 @@
 ////
 
 #include "book.h"
-#include "mersenne.h"
+#include "glaurino_lizardino/genrand/genrandfactory.h"
 #include "movegen.h"
 #include <cassert>
 
@@ -44,6 +44,8 @@ Book OpeningBook;
 ////
 
 namespace {
+
+auto randGen = GenRandFactory::Create();
 
 /// Random numbers from PolyGlot, used to compute book hash keys.
 
@@ -343,7 +345,7 @@ Move Book::get_move(const Position &pos) const
             assert(score > 0);
 
             bestScore += score;
-            if (int(genrand_int32() % bestScore) < score)
+            if (int(randGen->genrand_uint32() % bestScore) < score)
                 bestMove = move;
         }
 

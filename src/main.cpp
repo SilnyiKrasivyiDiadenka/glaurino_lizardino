@@ -26,7 +26,6 @@
 #include "endgame.h"
 #include "evaluate.h"
 #include "material.h"
-#include "mersenne.h"
 #include "misc.h"
 #include "movepick.h"
 #include "position.h"
@@ -50,7 +49,6 @@ int main(int argc, char *argv[])
 
     using namespace Glaurung;
 
-    init_mersenne();
     init_direction_table();
     init_bitboards();
     init_uci_options();
@@ -61,11 +59,6 @@ int main(int argc, char *argv[])
     init_eval(1);
     init_bitbases();
     init_threads();
-
-    // Make random number generation less deterministic, for book moves
-    int i = abs(get_system_time() % 10000);
-    for (int j = 0; j < i; j++)
-        genrand_int32();
 
     // Process command line arguments
     if (argc >= 2) {

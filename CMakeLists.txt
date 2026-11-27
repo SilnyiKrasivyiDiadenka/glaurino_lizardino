@@ -37,8 +37,6 @@ add_executable(
   src/main.cpp
   src/material.h
   src/material.cpp
-  src/mersenne.h
-  src/mersenne.cpp
   src/misc.h
   src/misc.cpp
   src/move.h
@@ -72,6 +70,11 @@ add_executable(
   src/ucioption.cpp
   src/value.h
   src/value.cpp
+  src/glaurino_lizardino/genrand/igenrand.h
+  src/glaurino_lizardino/genrand/genrandfactory.h
+  src/glaurino_lizardino/genrand/genrandfactory.cpp
+  src/glaurino_lizardino/genrand/impl/genrandmersenne.hpp
+  src/glaurino_lizardino/genrand/impl/genrandstd.hpp
   src/glaurino_lizardino/popcount/ipopcount.h
   src/glaurino_lizardino/popcount/popcountfactory.h
   src/glaurino_lizardino/popcount/popcountfactory.cpp

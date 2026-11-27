@@ -21,8 +21,8 @@
 ////
 
 #include "position.h"
+#include "glaurino_lizardino/genrand/genrandfactory.h"
 #include "glaurino_lizardino/popcount/popcountfactory.h"
-#include "mersenne.h"
 #include "movegen.h"
 #include "movepick.h"
 #include "psqtab.h"
@@ -39,6 +39,7 @@ namespace Glaurung {
 
 namespace {
 auto bitCounter = PopCountFactory::Create();
+auto genRand = GenRandFactory::Create();
 }
 
 int Position::castleRightsMask[64];
@@ -2068,20 +2069,20 @@ void Position::init_zobrist()
     for (int i = 0; i < 2; i++)
         for (int j = 0; j < 8; j++)
             for (int k = 0; k < 64; k++)
-                zobrist[i][j][k] = Key(genrand_int64());
+                zobrist[i][j][k] = Key(genRand->genrand_uint64());
 
     for (int i = 0; i < 64; i++)
-        zobEp[i] = Key(genrand_int64());
+        zobEp[i] = Key(genRand->genrand_uint64());
 
     for (int i = 0; i < 16; i++)
-        zobCastle[i] = genrand_int64();
+        zobCastle[i] = genRand->genrand_uint64();
 
-    zobSideToMove = genrand_int64();
+    zobSideToMove = genRand->genrand_uint64();
 
     for (int i = 0; i < 2; i++)
         for (int j = 0; j < 8; j++)
             for (int k = 0; k < 16; k++)
-                zobMaterial[i][j][k] = (k > 0) ? Key(genrand_int64()) : Key(0LL);
+                zobMaterial[i][j][k] = (k > 0) ? Key(genRand->genrand_uint64()) : Key(0LL);
 
     for (int i = 0; i < 16; i++)
         zobMaterial[0][KING][i] = zobMaterial[1][KING][i] = Key(0ULL);
@@ -2099,7 +2100,7 @@ void Position::init_piece_square_tables()
     int r = get_option_value_int("Randomness"), i;
     for (Square s = SQ_A1; s <= SQ_H8; s++) {
         for (Piece p = WP; p <= WK; p++) {
-            i = (r == 0) ? 0 : (genrand_int32() % (r * 2) - r);
+            i = (r == 0) ? 0 : (genRand->genrand_uint32() % (r * 2) - r);
             MgPieceSquareTable[p][s] = Value(MgPST[p][s] + i);
             EgPieceSquareTable[p][s] = Value(EgPST[p][s] + i);
         }
