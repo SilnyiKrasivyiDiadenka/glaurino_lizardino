@@ -30,11 +30,13 @@
 #include "thread.h"
 #include "tt.h"
 #include "ucioption.h"
+#include <algorithm>
 #include <cassert>
 #include <condition_variable>
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <ranges>
 #include <thread>
 
 namespace Glaurung {
@@ -200,7 +202,7 @@ std::ofstream LogFile;
 // MP related variables
 Depth MinimumSplitDepth = 4 * OnePly;
 int MaxThreadsPerSplitPoint = 4;
-Thread Threads[THREAD_MAX];
+std::vector<Thread> Threads(THREAD_MAX);
 std::mutex MPLock;
 bool AllThreadsShouldExit = false;
 const int MaxActiveSplitPoints = 8;
@@ -463,29 +465,20 @@ void think(const Position &pos,
 
 void init_threads()
 {
-    volatile int i;
-
-    for (i = 0; i < THREAD_MAX; i++)
-        Threads[i].activeSplitPoints = 0;
-
-    init_split_point_stack();
-
-    // All threads except the main thread should be initialized to idle state:
-    for (i = 1; i < THREAD_MAX; i++) {
-        Threads[i].stop = false;
-        Threads[i].workIsWaiting = false;
-        Threads[i].idle = true;
-        Threads[i].running = false;
-    }
-
-    // Launch the helper threads:
-    for (i = 1; i < THREAD_MAX; i++) {
-        Threads[i].worker = std::jthread(idle_loop, i, nullptr);
-
-        // Wait until the thread has finished launching:
-        while (!Threads[i].running)
-            ;
-    }
+    std::ranges::for_each(Threads | std::views::enumerate, [](auto &&it) {
+        auto &[index, thread] = it;
+        if (index == 0) {
+            // Launch helper threads only (i = 1 .. THREAD_MAX-1).
+            // Threads[0].worker is not launched - the main thread is the worker for slot 0.
+            // Threads[0].* is still used for signaling, sync, and state.
+        } else {
+            thread.idle = true;
+            thread.worker = std::jthread(idle_loop, index, nullptr);
+            while (!thread.running) {
+                ;
+            }
+        }
+    });
 }
 
 /// stop_threads() is called when the program exits.  It makes all the

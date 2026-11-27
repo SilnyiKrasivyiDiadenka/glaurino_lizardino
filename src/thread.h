@@ -62,15 +62,15 @@ struct SplitPoint
 struct alignas(64) Thread
 {
     std::jthread worker;
-    SplitPoint *splitPoint;
-    std::atomic<int> activeSplitPoints;
-    std::atomic<std::uint64_t> nodes;
-    std::atomic<bool> failHighPly1;
-    std::atomic<bool> stop;
-    std::atomic<bool> running;
-    std::atomic<bool> idle;
-    std::atomic<bool> workIsWaiting;
-    std::atomic<bool> printCurrentLine;
+    SplitPoint *splitPoint{nullptr};
+    std::atomic<int> activeSplitPoints{0};
+    std::atomic<std::uint64_t> nodes{0};
+    std::atomic<bool> failHighPly1{false};
+    std::atomic<bool> stop{false};
+    std::atomic<bool> running{false};
+    std::atomic<bool> idle{false};
+    std::atomic<bool> workIsWaiting{false};
+    std::atomic<bool> printCurrentLine{false};
 };
 
 } // namespace Glaurung
