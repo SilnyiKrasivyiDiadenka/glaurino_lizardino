@@ -36,7 +36,7 @@ enum ValueType {
     VALUE_TYPE_EXACT = 3  // Exact score
 };
 
-enum Value {
+enum Value : int {
     VALUE_DRAW = 0,
     VALUE_KNOWN_WIN = 15000,
     VALUE_MATE = 30000,
